@@ -1,6 +1,5 @@
 ---
 title: "climate_data"
-
 output: workflowr::wflow_html
 editor_options:
   chunk_output_type: console
@@ -10,7 +9,7 @@ editor_options:
 
 - Prepara climate data 
 
-```{r}
+```{r, message=FALSE, warning=FALSE}
 library(tidyverse)
 library(here)
 library(janitor)
@@ -69,10 +68,12 @@ write_csv(climate, "data/climate_psn07_canar.csv")
 ```
 
 
-```{r}
+```{r, message=FALSE}
 climate <- read_csv("data/climate_psn07_canar.csv")
 ```
 
+# Precipitation
+- Data from PSN_07 (Estación Meteorológica Cáñar)
 
 ```{r}
 prec_monthly <- climate %>%
@@ -94,7 +95,7 @@ date_samplings <- as.Date(c("2008-04-29",
                             format="%Y-%m-%d")
 ```
 
-- Get 3-6 month previously to sampling: 
+## Get 3-6 month previously to sampling: 
   
 ```{r}
 pre2008 <- climate %>% 
@@ -131,6 +132,7 @@ pre_cum %>%
   
 ```
 
+## Cummulative precipitation
 ```{r}
 prec_cum_line <- 
   pre_cum %>% 
@@ -177,6 +179,7 @@ points %>%
 ```
 
 
+# Temperature 
 ```{r}
 
 t2008 <- pre_cum %>% 
