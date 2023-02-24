@@ -1,0 +1,19 @@
+---
+title: "Home"
+site: workflowr::wflow_site
+output:
+  workflowr::wflow_html:
+    toc: false
+editor_options:
+  chunk_output_type: console
+---
+
+# Spectral Indices
+
+- [MODIS (250 m) NDVI](modis_ndvi.hmtl)
+- [Landsat (30 m) NDVI and NBR](landast_ltr.hmtl)
+
+# Climatic Data 
+
+
+# Burn severity 
