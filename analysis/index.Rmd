@@ -10,10 +10,10 @@ editor_options:
 
 # Spectral Indices
 
-- [MODIS (250 m) NDVI](modis_ndvi.hmtl)
-- [Landsat (30 m) NDVI and NBR](landast_ltr.hmtl)
+- [MODIS (250 m) NDVI](modis_ndvi.html)
+- [Landsat (30 m) NDVI and NBR](landast_ltr.html)
 
 # Climatic Data 
-
+- [Data from PSN07 (since 2008)](climate_data.html)
 
 # Burn severity 
