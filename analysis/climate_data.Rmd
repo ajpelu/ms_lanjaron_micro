@@ -133,7 +133,7 @@ pre_cum %>%
 ```
 
 ## Cummulative precipitation
-```{r}
+```{r, message=FALSE, warning=FALSE}
 prec_cum_mean <- climate %>% 
   mutate(doy = lubridate::yday(date), 
          year = lubridate::year(date)) %>% 
