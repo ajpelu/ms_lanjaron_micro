@@ -13,7 +13,7 @@
 
 <title>climate_data</title>
 
-<script src="site_libs/header-attrs-2.18/header-attrs.js"></script>
+<script src="site_libs/header-attrs-2.19/header-attrs.js"></script>
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
@@ -380,7 +380,7 @@ class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2023-02-24
+<strong>Last updated:</strong> 2023-03-08
 </p>
 <p>
 <strong>Checks:</strong> <span
@@ -511,15 +511,15 @@ project makes it easier to run your code on other machines.</p>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomajpelumslanjaronmicrotreeba907abdcb67bb5e1bf7582fc86e49f3c34dd8fftargetblankba907aba">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomajpelumslanjaronmicrotree434fc9b4fe355ebecb0b87dc1ce0a85cc5d3ff8dtargetblank434fc9ba">
 <span class="glyphicon glyphicon-ok text-success"
 aria-hidden="true"></span> <strong>Repository version:</strong>
-<a href="https://github.com/ajpelu/ms_lanjaron_micro/tree/ba907abdcb67bb5e1bf7582fc86e49f3c34dd8ff" target="_blank">ba907ab</a>
+<a href="https://github.com/ajpelu/ms_lanjaron_micro/tree/434fc9b4fe355ebecb0b87dc1ce0a85cc5d3ff8d" target="_blank">434fc9b</a>
 </a>
 </p>
 </div>
 <div
-id="strongRepositoryversionstrongahrefhttpsgithubcomajpelumslanjaronmicrotreeba907abdcb67bb5e1bf7582fc86e49f3c34dd8fftargetblankba907aba"
+id="strongRepositoryversionstrongahrefhttpsgithubcomajpelumslanjaronmicrotree434fc9b4fe355ebecb0b87dc1ce0a85cc5d3ff8dtargetblank434fc9ba"
 class="panel-collapse collapse">
 <div class="panel-body">
 <p>
@@ -529,7 +529,7 @@ reproducibility.
 </p>
 <p>
 The results in this page were generated with repository version
-<a href="https://github.com/ajpelu/ms_lanjaron_micro/tree/ba907abdcb67bb5e1bf7582fc86e49f3c34dd8ff" target="_blank">ba907ab</a>.
+<a href="https://github.com/ajpelu/ms_lanjaron_micro/tree/434fc9b4fe355ebecb0b87dc1ce0a85cc5d3ff8d" target="_blank">434fc9b</a>.
 See the <em>Past versions</em> tab to see a history of the changes made
 to the R Markdown and HTML files.
 </p>
@@ -544,16 +544,7 @@ were generated:
 </p>
 <pre><code>
 Ignored files:
-    Ignored:    .DS_Store
-    Ignored:    .Rhistory
     Ignored:    .Rproj.user/
-    Ignored:    analysis/.DS_Store
-    Ignored:    data/.DS_Store
-    Ignored:    data/geo/.DS_Store
-    Ignored:    output/.DS_Store
-
-Unstaged changes:
-    Modified:   analysis/index.Rmd
 
 </code></pre>
 <p>
@@ -599,6 +590,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/ajpelu/ms_lanjaron_micro/blob/434fc9b4fe355ebecb0b87dc1ce0a85cc5d3ff8d/analysis/climate_data.Rmd" target="_blank">434fc9b</a>
+</td>
+<td>
+ajpelu
+</td>
+<td>
+2023-03-08
+</td>
+<td>
+ADD avg
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/ajpelu/ms_lanjaron_micro/c8279ce2e6316bf3c30218221a30ce7551ea2c98/docs/climate_data.html" target="_blank">c8279ce</a>
+</td>
+<td>
+ajpelu
+</td>
+<td>
+2023-02-24
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 html
@@ -848,17 +873,47 @@ ajpelu
 </div>
 <div id="cummulative-precipitation" class="section level2">
 <h2>Cummulative precipitation</h2>
-<pre class="r"><code>prec_cum_line &lt;- 
-  pre_cum %&gt;% 
+<pre class="r"><code>prec_cum_mean &lt;- climate %&gt;% 
+  mutate(doy = lubridate::yday(date), 
+         year = lubridate::year(date)) %&gt;% 
   group_by(year) %&gt;% 
-  mutate(cum = cumsum(prec))
+  mutate(cum = cumsum(prec)) %&gt;% 
+  dplyr::select(doy, cum, year) %&gt;% 
+  group_by(doy) %&gt;% 
+  summarise(mean = mean(cum, na.rm=TRUE),
+          sd = sd(cum, na.rm = TRUE),
+          se = sd/sqrt(length(cum))) %&gt;% 
+  rename(cum = mean) %&gt;% 
+  mutate(year = as.character(&quot;2008-2021&quot;))
+
+prec_cum_line &lt;- 
+  pre_cum %&gt;% 
+  mutate(year = as.factor(year)) %&gt;% 
+  group_by(year) %&gt;% 
+  mutate(cum = cumsum(prec)) %&gt;% 
+  dplyr::select(doy, year, cum) %&gt;% 
+  mutate(year = as.character(year)) %&gt;% 
+  relocate(year, .after = doy)
 
 points &lt;- prec_cum_line %&gt;% 
  group_by(year) %&gt;% 
   filter(doy ==  max(doy))
+prec_cum_line_avg &lt;- 
+  bind_rows(prec_cum_line, prec_cum_mean) %&gt;%
+  filter(doy &lt; 127) %&gt;% 
+  rowwise() %&gt;% 
+  mutate(days_to_sampling = case_when(
+    year == &quot;2008&quot; ~ (doy - 119), 
+    year == &quot;2011&quot; ~ (doy - 115), 
+    year == &quot;2014&quot; ~ (doy - 126), 
+    year == &quot;2008-2021&quot; ~ (doy - 126))) 
+    
 
-prec_cum_line %&gt;% 
+prec_cum_line_avg %&gt;% 
   ggplot(aes(x=doy, y=cum, col=as.factor(year))) +
+  geom_ribbon(aes(ymin = cum - se, ymax = cum + se), 
+              fill=&quot;gray&quot;, alpha = .1, linetype = 2, 
+              show.legend = FALSE) + 
   geom_line() +
   theme_bw() + 
   theme(
@@ -866,11 +921,19 @@ prec_cum_line %&gt;%
   ) +
   ylab(&quot;Cummulative Rainfall (mm)&quot;) +
   xlab(&quot;Day of year&quot;) + 
-  scale_color_manual(values=c(&quot;lightblue&quot;, &quot;black&quot;, &quot;orange&quot;), 
+  scale_color_manual(values=c(&quot;lightblue&quot;, &quot;gray&quot;, &quot;black&quot;, &quot;orange&quot;), 
                      name = &quot;year&quot;) +
   geom_point(data = points, 
              aes(x=doy, y=cum), 
-             size = 3)</code></pre>
+             size = 3) </code></pre>
+<pre><code>Warning in max(ids, na.rm = TRUE): no non-missing arguments to max; returning
+-Inf
+
+Warning in max(ids, na.rm = TRUE): no non-missing arguments to max; returning
+-Inf
+
+Warning in max(ids, na.rm = TRUE): no non-missing arguments to max; returning
+-Inf</code></pre>
 <p><img src="figure/climate_data.Rmd/unnamed-chunk-7-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-7-1">
@@ -924,44 +987,7 @@ points %&gt;%
   theme(
     panel.grid = element_blank()
   ) </code></pre>
-<p><img src="figure/climate_data.Rmd/unnamed-chunk-8-1.png" width="672" style="display: block; margin: auto;" /></p>
-<p>
-<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-8-1">
-Past versions of unnamed-chunk-8-1.png
-</button>
-</p>
-<div id="fig-unnamed-chunk-8-1" class="collapse">
-<div class="table-responsive">
-<table class="table table-condensed table-hover">
-<thead>
-<tr>
-<th>
-Version
-</th>
-<th>
-Author
-</th>
-<th>
-Date
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>
-<a href="https://github.com/ajpelu/ms_lanjaron_micro/blob/ba907abdcb67bb5e1bf7582fc86e49f3c34dd8ff/docs/figure/climate_data.Rmd/unnamed-chunk-8-1.png" target="_blank">ba907ab</a>
-</td>
-<td>
-ajpelu
-</td>
-<td>
-2023-02-24
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
+<p><img src="figure/climate_data.Rmd/unnamed-chunk-9-1.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
 </div>
 <div id="temperature" class="section level1">
@@ -1000,44 +1026,7 @@ temp &lt;- bind_rows(t2008,t2011,t2014) %&gt;% dplyr::select(-prec)</code></pre>
   theme(
     panel.grid = element_blank()
   ) </code></pre>
-<p><img src="figure/climate_data.Rmd/unnamed-chunk-10-1.png" width="672" style="display: block; margin: auto;" /></p>
-<p>
-<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-10-1">
-Past versions of unnamed-chunk-10-1.png
-</button>
-</p>
-<div id="fig-unnamed-chunk-10-1" class="collapse">
-<div class="table-responsive">
-<table class="table table-condensed table-hover">
-<thead>
-<tr>
-<th>
-Version
-</th>
-<th>
-Author
-</th>
-<th>
-Date
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>
-<a href="https://github.com/ajpelu/ms_lanjaron_micro/blob/ba907abdcb67bb5e1bf7582fc86e49f3c34dd8ff/docs/figure/climate_data.Rmd/unnamed-chunk-10-1.png" target="_blank">ba907ab</a>
-</td>
-<td>
-ajpelu
-</td>
-<td>
-2023-02-24
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
+<p><img src="figure/climate_data.Rmd/unnamed-chunk-11-1.png" width="672" style="display: block; margin: auto;" /></p>
 <pre class="r"><code>temp %&gt;% 
   dplyr::select(tmin, tmax, tmed, year) %&gt;% 
   group_by(year) %&gt;% 
@@ -1122,12 +1111,12 @@ Session information
 <div id="workflowr-sessioninfo" class="collapse">
 <pre class="r"><code>sessionInfo()</code></pre>
 <pre><code>R version 4.2.1 (2022-06-23)
-Platform: aarch64-apple-darwin20 (64-bit)
-Running under: macOS Monterey 12.3.1
+Platform: x86_64-apple-darwin17.0 (64-bit)
+Running under: macOS Big Sur ... 10.16
 
 Matrix products: default
-BLAS:   /Library/Frameworks/R.framework/Versions/4.2-arm64/Resources/lib/libRblas.0.dylib
-LAPACK: /Library/Frameworks/R.framework/Versions/4.2-arm64/Resources/lib/libRlapack.dylib
+BLAS:   /Library/Frameworks/R.framework/Versions/4.2/Resources/lib/libRblas.0.dylib
+LAPACK: /Library/Frameworks/R.framework/Versions/4.2/Resources/lib/libRlapack.dylib
 
 locale:
 [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
@@ -1137,7 +1126,7 @@ attached base packages:
 
 other attached packages:
  [1] kableExtra_1.3.4 janitor_2.1.0    here_1.0.1       forcats_0.5.2   
- [5] stringr_1.4.1    dplyr_1.0.10     purrr_0.3.5      readr_2.1.3     
+ [5] stringr_1.5.0    dplyr_1.0.10     purrr_0.3.4      readr_2.1.2     
  [9] tidyr_1.2.1      tibble_3.1.8     ggplot2_3.4.0    tidyverse_1.3.2 
 [13] workflowr_1.7.0 
 
@@ -1151,22 +1140,22 @@ loaded via a namespace (and not attached):
 [19] git2r_0.30.1        cli_3.6.0           rvest_1.0.3        
 [22] xml2_1.3.3          labeling_0.4.2      sass_0.4.4         
 [25] scales_1.2.1        callr_3.7.3         systemfonts_1.0.4  
-[28] digest_0.6.31       rmarkdown_2.18      svglite_2.1.0      
+[28] digest_0.6.31       rmarkdown_2.19      svglite_2.1.0      
 [31] pkgconfig_2.0.3     htmltools_0.5.4     dbplyr_2.2.1       
-[34] fastmap_1.1.0       highr_0.9           rlang_1.0.6        
+[34] fastmap_1.1.0       highr_0.10          rlang_1.0.6        
 [37] readxl_1.4.1        rstudioapi_0.14     jquerylib_0.1.4    
 [40] generics_0.1.3      farver_2.1.1        jsonlite_1.8.4     
-[43] vroom_1.6.0         googlesheets4_1.0.1 magrittr_2.0.3     
-[46] Rcpp_1.0.9          munsell_0.5.0       fansi_1.0.3        
+[43] vroom_1.5.7         googlesheets4_1.0.1 magrittr_2.0.3     
+[46] Rcpp_1.0.9.5        munsell_0.5.0       fansi_1.0.3        
 [49] lifecycle_1.0.3     stringi_1.7.8       whisker_0.4        
 [52] yaml_2.3.7          snakecase_0.11.0    grid_4.2.1         
 [55] parallel_4.2.1      promises_1.2.0.1    crayon_1.5.2       
 [58] haven_2.5.1         hms_1.1.2           knitr_1.41         
 [61] ps_1.7.1            pillar_1.8.1        reprex_2.0.2       
-[64] glue_1.6.2          evaluate_0.18       getPass_0.2-2      
+[64] glue_1.6.2          evaluate_0.19       getPass_0.2-2      
 [67] modelr_0.1.9        vctrs_0.5.1         tzdb_0.3.0         
 [70] httpuv_1.6.8        cellranger_1.1.0    gtable_0.3.1       
-[73] assertthat_0.2.1    cachem_1.0.6        xfun_0.35          
+[73] assertthat_0.2.1    cachem_1.0.6        xfun_0.36          
 [76] broom_1.0.1         later_1.3.0         googledrive_2.0.0  
 [79] viridisLite_0.4.1   gargle_1.2.1        ellipsis_0.3.2     </code></pre>
 </div>
