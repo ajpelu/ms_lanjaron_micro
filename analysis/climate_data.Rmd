@@ -134,6 +134,63 @@ pre_cum %>%
 
 ## Cummulative precipitation
 ```{r}
+prec_cum_mean <- climate %>% 
+  mutate(doy = lubridate::yday(date), 
+         year = lubridate::year(date)) %>% 
+  group_by(year) %>% 
+  mutate(cum = cumsum(prec)) %>% 
+  dplyr::select(doy, cum, year) %>% 
+  group_by(doy) %>% 
+  summarise(mean = mean(cum, na.rm=TRUE),
+          sd = sd(cum, na.rm = TRUE),
+          se = sd/sqrt(length(cum))) %>% 
+  rename(cum = mean) %>% 
+  mutate(year = as.character("2008-2021"))
+
+prec_cum_line <- 
+  pre_cum %>% 
+  mutate(year = as.factor(year)) %>% 
+  group_by(year) %>% 
+  mutate(cum = cumsum(prec)) %>% 
+  dplyr::select(doy, year, cum) %>% 
+  mutate(year = as.character(year)) %>% 
+  relocate(year, .after = doy)
+
+points <- prec_cum_line %>% 
+ group_by(year) %>% 
+  filter(doy ==  max(doy))
+prec_cum_line_avg <- 
+  bind_rows(prec_cum_line, prec_cum_mean) %>%
+  filter(doy < 127) %>% 
+  rowwise() %>% 
+  mutate(days_to_sampling = case_when(
+    year == "2008" ~ (doy - 119), 
+    year == "2011" ~ (doy - 115), 
+    year == "2014" ~ (doy - 126), 
+    year == "2008-2021" ~ (doy - 126))) 
+    
+
+prec_cum_line_avg %>% 
+  ggplot(aes(x=doy, y=cum, col=as.factor(year))) +
+  geom_ribbon(aes(ymin = cum - se, ymax = cum + se), 
+              fill="gray", alpha = .1, linetype = 2, 
+              show.legend = FALSE) + 
+  geom_line() +
+  theme_bw() + 
+  theme(
+    panel.grid = element_blank()
+  ) +
+  ylab("Cummulative Rainfall (mm)") +
+  xlab("Day of year") + 
+  scale_color_manual(values=c("lightblue", "gray", "black", "orange"), 
+                     name = "year") +
+  geom_point(data = points, 
+             aes(x=doy, y=cum), 
+             size = 3) 
+```
+
+
+```{r, eval=FALSE, echo=FALSE}
 prec_cum_line <- 
   pre_cum %>% 
   group_by(year) %>% 
