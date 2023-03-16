@@ -15,6 +15,8 @@ library(here)
 library(purrr)
 library(dygraphs)
 library(xts)
+library(ggpubr)
+library(kableExtra)
 ```
 
 ```{r, eval=FALSE, echo=FALSE}
@@ -38,7 +40,11 @@ write_csv(d, "data/nbr_ndvi_landast_plot.csv")
 ```{r, message=FALSE}
 d <- read_csv("data/nbr_ndvi_landast_plot.csv") |> 
   mutate(original = original/1000, 
-         fitted = fitted/1000)
+         fitted = fitted/1000, 
+         treatment = case_when(
+    str_detect(plot, "N") ~ "Unburned",
+    TRUE ~ "Burned"
+  ))
 ```
 
 ## NBR 
@@ -127,10 +133,52 @@ ndvi_plot <- d  |>
     strip.text = element_text(face="italic"))
 ```
 
+
+```{r}
+colour_plot <- c("Unburned" = "#74c476",
+                 "Burned" = "#543005")
+
+puntitos <- c("LJN1" = 15, "LJN2" = 16, "LJN3" = 17,
+          "LJQ1" = 22, "LJQ2" = 25, "LJQ3" = 23)
+
+cols_fill_puntitos <- c("LJN1" = "#74c476",
+          "LJN2" = "#74c476",
+          "LJN3" = "#74c476",
+          "LJQ2" = "white",
+          "LJQ1" = "white",
+          "LJQ3" = "white")
+
+ndvi_plotv2 <- d  |> 
+  filter(vi == "ndvi") |> 
+  ggplot(aes(x=year, y=original)) + 
+  geom_vline(xintercept = c(2008, 2011, 2014), colour = "gray") + 
+  geom_line(aes(linetype = plot, colour = treatment)) +
+  geom_point(aes(shape = plot, colour = treatment, fill = plot), size=2) + 
+  scale_colour_manual(values=colour_plot, name="Treatment") +
+  scale_shape_manual(values = puntitos, name ="plot") + 
+  scale_fill_manual(values= cols_fill_puntitos, name="plot") +
+  theme_bw() +
+  ylab("Annual NDVI") + xlab("") +
+  theme(
+    panel.grid = element_blank(),
+    # panel.grid.major.x = element_blank(),
+    strip.background = element_rect(fill=NA), 
+    strip.text = element_text(face="italic"))
+```
+
+```{r}
+ndvi_plotv2
+```
+
+
 ```{r}
 ggsave(ndvi_plot, 
        filename= here::here("output/ndvi_landsat.png"), 
        device = "png", height = 10, width = 18, unit = "cm", dpi=150)
+
+ggsave(ndvi_plotv2, 
+       filename= here::here("output/ndvi_landsat_v2.png"), 
+       device = "png", height = 13, width = 20, unit = "cm", dpi=300)
 ```
 
 
@@ -162,6 +210,38 @@ dygraph(ndvi_ts) |>
 ```
 
 
+```{r, message=FALSE, warning=FALSE}
+compare_ndvi <- d |> filter(vi == "ndvi") |>
+  filter(year %in% c(2002:2004, 2008, 2011, 2014)) |>
+  mutate(yearF = case_when(
+    year %in% 2002:2004 ~ "pre fire (2002-2004)", 
+    TRUE ~ as.character(year) 
+  )) |>
+  rename(ndvi = original)
+  
+my_comparisons <- 
+  list(c("pre fire (2002-2004)", "2008"), 
+       c("pre fire (2002-2004)", "2011"), 
+       c("pre fire (2002-2004)", "2014"))
+
+
+ggboxplot(compare_ndvi, 
+          x = "yearF", 
+          y = "ndvi", 
+          add = "jitter", 
+          xlab = "", 
+          ylab = "Annual NDVI") +  
+  stat_compare_means(ref.group = "pre fire (2002-2004)", 
+                     label = "p", label.y = 0.65)
+
+
+compare_means(ndvi ~ yearF, compare_ndvi, 
+              method = "wilcox.test", 
+              ref.group = "pre fire (2002-2004)",
+              p.adjust.method = "bonferroni") |> 
+  kableExtra::kbl() %>% 
+  kable_styling()
+```
 
 
 
