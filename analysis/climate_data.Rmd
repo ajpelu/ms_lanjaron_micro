@@ -281,7 +281,10 @@ plot_lineas_arquilla <- b |>
   geom_line() +
   theme_bw() + 
   theme(
-    panel.grid = element_blank()
+    panel.grid = element_blank(),
+    legend.position = c(.85,.15), 
+    legend.background = element_blank()
+    
   ) +
   ylab("Cummulative Rainfall (mm), Arquilla 6257I") +
   xlab("Hydrological day") + 
@@ -405,20 +408,24 @@ d2s120
 ```
 
 
-
-```{r}
+```{r, fig.height=7, fig.width=8}
 library(cowplot)
 combined_plot <- ggdraw() + 
   draw_plot(plot_lineas_arquilla) + 
   draw_plot(d2s120, 
-            x = -0.28, 
+            x = -0.21, 
             y = 0.3, 
             scale = 0.32)
+
+combined_plot
 ```
 
-
-
-
+```{r}
+ggsave(plot = combined_plot, 
+       filename = here::here("output/cumulative.jpg"), 
+       height = 18, width = 18, units = "cm",
+       dpi = 600, device = "jpeg")
+```
 
 
 
@@ -511,12 +518,6 @@ d2s |>
 
 
 ```
-
-
-
-
-
-
 
 
 
@@ -666,20 +667,20 @@ t2008 <- pre_cum |>
   filter(year == 2008) |> 
   filter(date >= as.Date("2008-03-29", format="%Y-%m-%d")) |> 
   arrange(desc(doy)) |> 
-  mutate(d = -seq.int(nrow(.)))
+  mutate(d = -seq.int(length(doy)))
 
 t2011 <- pre_cum |> 
   filter(year == 2011) |> 
   filter(date >= as.Date("2011-03-26", format="%Y-%m-%d")) |> 
   arrange(desc(doy)) |> 
-  mutate(d = -seq.int(nrow(.)))
+  mutate(d = -seq.int(length(doy)))
 
 
 t2014 <- pre_cum |> 
   filter(year == 2014) |> 
   filter(date >= as.Date("2014-04-06", format="%Y-%m-%d"))|> 
   arrange(desc(doy)) |> 
-  mutate(d = -seq.int(nrow(.))) 
+  mutate(d = -seq.int(length(doy))) 
 
 temp <- bind_rows(t2008,t2011,t2014) |> dplyr::select(-prec)
 

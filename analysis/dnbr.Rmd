@@ -1,0 +1,105 @@
+---
+title: "dnbr"
+author: "ajpelu"
+date: "2023-04-04"
+output: workflowr::wflow_html
+editor_options:
+  chunk_output_type: console
+---
+
+## dNBR
+
+```{r}
+library(tidyverse)
+library(raster)
+```
+
+```{r}
+dnbr <- raster::raster("data/ltr/dnbr.tif")
+raster::plot(dnbr)
+
+# Convert to df and remove NA 
+raw <- as.data.frame(dnbr, xy= TRUE) |> 
+  filter(!is.na(dnbr))
+```
+
+
+```{r}
+d <- raw |> 
+  mutate(severity = 
+           cut(dnbr, 
+               breaks = c(-Inf, -.251, -.101, .099, 
+                               .269, .439, .659, Inf),
+               labels = c(
+                 "Regrowth High", "Regrowth Low", "Unburned", 
+                 "Low Severity", "Moderate Low Severity", 
+                 "Moderate High Severity", "High Severity")
+               ))
+
+
+
+reclass_df <- 
+  c(-Inf, -.251, -2,
+    -.251, -.101, -1,  
+    -.101, .099, 0,  
+    .099, .269, 1,  
+    .269, .439, 2, 
+    .439, .659, 3,  
+    .659, Inf, 4)
+
+reclass_df <- 
+  c(-Inf, -.251, -2, "Regrowth High", 
+    -.251, -.101, -1, "Regrowth Low",
+    -.101, .099, 0, "Unburned",
+    .099, .269, 1, "Low Severity",
+    .269, .439, 2, "Moderate Low Severity",
+    .439, .659, 3, "Moderate High Severity",
+    .659, Inf, 4, "High Severity")
+
+
+
+
+effis_df <- 
+  c(-Inf, 0.1, 0, 
+    0.1, 0.255, 1, 
+    0.255, 0.41, 2,
+    0.41, 0.66, 3, 
+    0.66, Inf, 4)
+    
+# 0 = "Unburned/Very Low"
+# 1 = "Low"
+# 2 = "Moderate"
+# 3 = "High"
+# 4 = "Very High"
+
+# https://effis.jrc.ec.europa.eu/about-effis/technical-background/rapid-damage-assessment 
+reclass_m <- matrix(effis_df, 
+                    ncol = 3, byrow = TRUE) 
+
+dnbr_reclas <- raster::reclassify(dnbr, reclass_m)
+plot(dnbr_reclas)
+
+##### ESTE https://www.scielo.org.mx/pdf/rca/n98/2663-3981-rca-98-145.pdf 
+
+# https://www.sciencedirect.com/science/article/pii/S0303243420308862 
+dpct <- d |> 
+  group_by(severity) |> 
+  summarise(n = length(dnbr)) 
+
+%>% 
+  as.data.frame()
+data_new2 
+
+```
+
+
+
+
+https://polipapers.upv.es/index.php/raet/article/view/13082/13393 
+
+https://www.juntadeandalucia.es/medioambiente/portal_web/rediam/productos/Publicaciones/congresos/2017_XVIICongresoAET/2017_AET_Cartografia_IncendioQuesada.pdf 
+
+
+https://8cfe.congresoforestal.es/sites/default/files/actas/8CFE-1064.pdf 
+
+https://www.juntadeandalucia.es/medioambiente/portal/documents/20142/0/2022_10_26_TOPCART_SierraBermeja_ver5_corregida.pdf/f8092d1b-9a08-453e-4dce-c4056f8d54c8?t=1668590187164 
