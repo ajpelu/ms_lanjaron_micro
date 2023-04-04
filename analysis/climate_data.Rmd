@@ -1,0 +1,719 @@
+---
+title: "climate_data"
+output: workflowr::wflow_html
+editor_options:
+  chunk_output_type: console
+---
+
+## Introduction
+
+- Prepara climate data 
+
+```{r, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(here)
+library(janitor)
+library(kableExtra)
+library(lubridate)
+
+# Custom function
+waterday <- function(x, start_month=10) {
+  start_jday <- lubridate::yday(lubridate::ymd(paste(2001, start_month, 1, sep='-'))) - 1
+  wday <- lubridate::yday(x)-(start_jday+lubridate::leap_year(x))
+  wday <- ifelse(wday<=0, 365+wday+lubridate::leap_year(x), wday)
+  wday
+}
+```
+
+
+
+```{r, eval=FALSE}
+raw <- read_csv("/Users/ajpelu/Downloads/cn_PSN07_166.csv")
+variables <- read.csv("/Users/ajpelu/Downloads/cn_variables.tsv", sep="\t")
+dat <- read_csv("/Users/ajpelu/Downloads/PSN07_diario_2021.csv") |> clean_names() 
+
+dat2021 <- dat |> 
+  mutate(date = as.Date(format(as.Date(fecha, format = "%d/%m/%Y"),
+                        "%Y-%m-%d"))) |> 
+           dplyr::select(
+    date, 
+    tmed = temperatura_media_o_c, 
+    tmax = temperatura_maxima_o_c, 
+    tmin = temperatura_minimo_o_c, 
+    prec = lluvia_acumulada_mm) 
+
+
+prec_dialy <- raw |> 
+  filter(variable_id == 49) |>
+  mutate(value = as.numeric(value)) |> 
+  mutate(date = as.Date(lubridate::ymd_hms(time), format = "%Y-%m-%d")) |>
+  group_by(date) |> 
+  summarise(prec = sum(value))
+
+prec_dialy <- prec_dialy |> 
+  bind_rows(
+    (dat2021 |> 
+       dplyr::select(date, prec))
+  )
+
+temp_dialy <- raw |> 
+  filter(variable_id == 108) |>
+  mutate(value = as.numeric(value)) |> 
+  mutate(date = as.Date(lubridate::ymd_hms(time), format = "%Y-%m-%d")) |>
+  group_by(date) |> 
+  summarise(tmin = min(value),
+            tmax = max(value),
+            tmed = mean(value))
+
+
+temp_dialy <- temp_dialy |> 
+  bind_rows(
+    (dat2021 |> 
+       dplyr::select(date, tmin, tmax, tmed))
+  )
+
+climate <- prec_dialy |> 
+  inner_join(temp_dialy)
+
+write_csv(climate, "data/climate_psn07_canar.csv")
+```
+
+
+```{r, message=FALSE}
+climate <- read_csv("data/climate_psn07_canar.csv")
+```
+
+# Precipitation
+## Data from PSN_07 (Estación Meteorológica Cáñar)
+
+```{r}
+prec_monthly <- climate |> 
+  dplyr::select(date, prec) |> 
+  mutate(date_ym = format(date, "%Y-%m")) |> 
+  group_by(date_ym) |> 
+  summarise(monthly_prec = sum(prec)) |> 
+  mutate(date = lubridate::parse_date_time(date_ym, "ym", tz = "CET"))
+  
+prec_monthly |> 
+  ggplot(aes(x=date, y=monthly_prec)) +
+  geom_bar(stat = "identity") 
+```
+
+```{r}
+date_samplings <- as.Date(c("2008-04-29",
+                            "2011-04-26",
+                            "2014-05-07"),
+                            format="%Y-%m-%d")
+```
+
+## Cummulative water (hydrological year)
+
+### Cáñar 
+
+```{r}
+wyear_canar <- climate |> 
+  mutate(
+    doy = lubridate::yday(date),
+    wday = waterday(date), 
+    year = lubridate::year(date),
+    month = lubridate::month(date)
+  ) |> 
+  mutate(wyear = year + month %in% c(10:12)) |> 
+  dplyr::select(-tmin, -tmax, -tmed)
+
+wyear_canar_cum <- wyear_canar |> 
+  group_by(wyear) |> 
+  mutate(cum = cumsum(prec)) 
+
+pre2008canar_w <- wyear_canar_cum  |>
+  filter(wyear == 2008) |> 
+  filter(date < as.Date("2008-04-29", format="%Y-%m-%d")) |> 
+  mutate(ndays = length(cum))
+  
+pre2011canar_w <- wyear_canar_cum  |>
+  filter(wyear == 2011) |> 
+  filter(date < as.Date("2011-04-26", format="%Y-%m-%d")) |> 
+  mutate(ndays = length(cum))
+  
+pre2014canar_w <- wyear_canar_cum  |>
+  filter(wyear == 2014) |> 
+  filter(date < as.Date("2014-05-07", format="%Y-%m-%d"))|> 
+  mutate(ndays = length(cum))
+
+prec_points_canar_w <- bind_rows(
+  pre2008canar_w |> filter(wday == max(wday)),
+  pre2011canar_w |> filter(wday == max(wday)),
+  pre2014canar_w |> filter(wday == max(wday)) 
+) |> 
+  dplyr::select(-prec, -month, -year, -doy) |> 
+  mutate(
+    station = "Cáñar PSN07 (wyear)"
+  )
+```
+
+### Arquilla
+
+```{r, message=FALSE}
+files <- list.files("data/climate_arquilla/", pattern = "*.csv", full.names = TRUE)
+
+arquilla_aux <- files |> 
+  map_dfr(~read_delim(., delim =";")) |> 
+  distinct() |> 
+  clean_names() |> 
+  dplyr::select(-station_id, -station_code, -validation, -variable) 
+
+arquilla <- arquilla_aux |> 
+  mutate(value = case_when(
+    value < 0 ~ 0,
+    TRUE ~ value  
+  )) |> 
+  mutate(
+    doy = lubridate::yday(time),
+    wday = waterday(time), 
+    year = lubridate::year(time),
+    month = lubridate::month(time)
+  ) |> 
+  filter(time > as.Date("1990-10-01", format = "%Y-%m-%d")) |> 
+  mutate(wyear = year + month %in% c(10:12)) |> 
+  arrange(time)
+
+rm(arquilla_aux)
+```
+
+
+```{r}
+wyear_arquilla_cum <- arquilla |> 
+  group_by(wyear) |> 
+  mutate(cum = cumsum(value)) 
+
+pre2008arquilla_w <- wyear_arquilla_cum  |>
+  filter(wyear == 2008) |> 
+  filter(time < as.Date("2008-04-29", format="%Y-%m-%d")) |> 
+  mutate(ndays = length(cum))
+
+pre2011arquilla_w <- wyear_arquilla_cum  |>
+  filter(wyear == 2011) |> 
+  filter(time < as.Date("2011-04-26", format="%Y-%m-%d")) |> 
+  mutate(ndays = length(cum))
+  
+pre2014arquilla_w <- wyear_arquilla_cum  |>
+  filter(wyear == 2014) |> 
+  filter(time < as.Date("2014-05-07", format="%Y-%m-%d"))|> 
+  mutate(ndays = length(cum))
+
+prec_points_arquilla_w <- bind_rows(
+  pre2008arquilla_w |> filter(wday == max(wday)),
+  pre2011arquilla_w |> filter(wday == max(wday)),
+  pre2014arquilla_w |> filter(wday == max(wday)) 
+) |> 
+  dplyr::select(-value, -month, -year, -doy) |>
+  rename(date = time) |> 
+  mutate(
+    station = "Arquilla 6257I (wyear)"
+  )
+```
+
+```{r}
+wpoints <- bind_rows(
+  prec_points_arquilla_w,
+  prec_points_canar_w) |> 
+  mutate(wyear = as.factor(wyear))
+```
+
+
+```{r}
+col <- c("2008" = "lightblue",
+         "2011" = "black",
+         "2014" = "orange")
+
+wpoints |> 
+  ggplot(aes(x=wyear, y=cum, fill=wyear)) +
+  geom_bar(stat="identity") +
+  scale_fill_manual(values = col, name = "wyear") +
+  facet_wrap(~station) + 
+  ylab("Cummulative Rainfall (mm)") +
+  xlab("Year") +
+    theme_bw() + 
+  theme(
+    panel.grid = element_blank()
+  ) 
+```
+
+
+```{r, eval=FALSE, echo=FALSE}
+wyear_arquilla_cum |> 
+  ggplot(aes(y=cum, x=wday)) + geom_line() +
+  facet_wrap(~wyear)
+
+```
+
+
+
+```{r}
+arquilla_line_avg <- wyear_arquilla_cum |> 
+  dplyr::select(wday, cum, wyear) |> 
+  group_by(wday) |> 
+  summarise(mean = mean(cum, na.rm=TRUE),
+          sd = sd(cum, na.rm = TRUE),
+          se = sd/sqrt(length(cum))) |> 
+  rename(cum = mean) |> 
+  mutate(wyear = as.character("1990-2017"))
+
+
+b <- bind_rows(
+  (arquilla_line_avg |> 
+     filter(wday < 219)),
+  (pre2008arquilla_w |> 
+     dplyr::select(wday, cum, wyear) |> 
+     mutate(sd = NA, se = NA, wyear = as.character(wyear))),
+  (pre2011arquilla_w |> 
+     dplyr::select(wday, cum, wyear) |> 
+     mutate(sd = NA, se = NA, wyear = as.character(wyear))),
+  (pre2014arquilla_w |> 
+     dplyr::select(wday, cum, wyear) |> 
+     mutate(sd = NA, se = NA, wyear = as.character(wyear))))
+
+plot_lineas_arquilla <- b |> 
+  ggplot(aes(x=wday, y=cum, col=as.factor(wyear))) +
+  geom_ribbon(aes(ymin = cum - se, ymax = cum + se), 
+              fill="gray", alpha = .1, linetype = 2, 
+              show.legend = FALSE) + 
+  geom_line() +
+  theme_bw() + 
+  theme(
+    panel.grid = element_blank()
+  ) +
+  ylab("Cummulative Rainfall (mm), Arquilla 6257I") +
+  xlab("Hydrological day") + 
+  scale_color_manual(values=c("gray", "lightblue", "black", "orange"), 
+                     name = "Hydrological year") +
+  geom_point(data = prec_points_arquilla_w, 
+             aes(x=wday, y=cum), 
+             size = 3) 
+
+plot_lineas_arquilla
+```
+
+
+```{r}
+canar_line_avg <- wyear_canar_cum |> 
+  dplyr::select(wday, cum, wyear) |> 
+  group_by(wday) |> 
+  summarise(mean = mean(cum, na.rm=TRUE),
+          sd = sd(cum, na.rm = TRUE),
+          se = sd/sqrt(length(cum))) |> 
+  rename(cum = mean) |> 
+  mutate(wyear = as.character("2008-2020"))
+
+
+bcanar <- bind_rows(
+  (canar_line_avg |> filter(wday < 219)),  
+  (pre2008canar_w |> 
+     dplyr::select(wday, cum, wyear) |> 
+     mutate(sd = NA, se = NA, wyear = as.character(wyear))),
+  (pre2011canar_w |> 
+     dplyr::select(wday, cum, wyear) |> 
+     mutate(sd = NA, se = NA, wyear = as.character(wyear))),
+  (pre2014canar_w |> 
+     dplyr::select(wday, cum, wyear) |> 
+     mutate(sd = NA, se = NA, wyear = as.character(wyear))))
+
+bcanar |> 
+  ggplot(aes(x=wday, y=cum, col=as.factor(wyear))) +
+  geom_ribbon(aes(ymin = cum - se, ymax = cum + se), 
+              fill="gray", alpha = .1, linetype = 2, 
+              show.legend = FALSE) + 
+  geom_line() +
+  theme_bw() + 
+  theme(
+    panel.grid = element_blank()
+  ) +
+  ylab("Cummulative Rainfall (mm), Cáñar PSN07") +
+  xlab("Hydrological day") + 
+  scale_color_manual(values=c("lightblue", "gray","black", "orange"), 
+                     name = "Hydrological year") +
+  geom_point(data = prec_points_canar_w, 
+             aes(x=wday, y=cum), 
+             size = 3) 
+```
+
+
+
+
+### Arquilla previous 30, 60, 90, 120 days
+```{r}
+pre2008arquilla_ws <- pre2008arquilla_w |> 
+  mutate(d2s = (interval(round(time, unit="day"), as.Date("2008-04-29", format = "%Y-%m-%d")) |>
+  as.numeric('days'))) |> 
+  arrange(d2s) |> 
+  mutate(cum_from = cumsum(value)) 
+  
+
+pre2011arquilla_ws <- pre2011arquilla_w |> 
+  mutate(d2s = (interval(round(time, unit="day"), as.Date("2011-04-26", format = "%Y-%m-%d")) |>
+  as.numeric('days'))) |> 
+  arrange(d2s) |> 
+  mutate(cum_from = cumsum(value)) 
+    
+pre2014arquilla_ws <- pre2014arquilla_w |> 
+  mutate(d2s = (interval(round(time, unit="day"), as.Date("2014-05-07", format = "%Y-%m-%d")) |>
+  as.numeric('days'))) |> 
+  arrange(d2s) |> 
+  mutate(cum_from = cumsum(value)) 
+  
+
+d2s <- bind_rows(
+  pre2008arquilla_ws, 
+  pre2011arquilla_ws,
+  pre2014arquilla_ws
+) |> 
+  filter(d2s %in% c(60, 90, 120, 150))
+```
+
+```{r}
+d2s |> 
+  ggplot(aes(x=as.factor(wyear), y=cum_from, fill=as.factor(wyear))) +
+  geom_bar(stat="identity") +
+  scale_fill_manual(values = col, name = "wyear") +
+  facet_wrap(~d2s) + 
+  ylab("Cummulative Rainfall (mm)") +
+  xlab("Year") +
+    theme_bw() + 
+  theme(
+    panel.grid = element_blank()
+  )
+```
+
+
+### Select 120 days previous to sampling date 
+
+```{r}
+d2s120 <- d2s |> 
+  filter(d2s == 120) |> 
+  ggplot(aes(x=as.factor(wyear), y=cum_from, fill=as.factor(wyear))) +
+  geom_bar(stat="identity") +
+  scale_fill_manual(values = col, name = "wyear") +
+  # facet_wrap(~d2s) + 
+  ylab("Cummulative Rainfall (mm)") +
+  xlab("") +
+    theme_bw() + 
+  theme(
+    panel.grid = element_blank(), 
+    legend.position = "none"
+  )
+d2s120
+```
+
+
+
+```{r}
+library(cowplot)
+combined_plot <- ggdraw() + 
+  draw_plot(plot_lineas_arquilla) + 
+  draw_plot(d2s120, 
+            x = -0.28, 
+            y = 0.3, 
+            scale = 0.32)
+```
+
+
+
+
+
+
+
+- Cummulative rainfall (bars) in the 120 days prior to the sampling date. Points and error bars indicate the average cumulative value along the period 1990-2017 (i.e. average value of the cummulative precipitations 120 days previous to sampling date every year)
+
+```{r}
+from_avg2008 <- wyear_arquilla_cum |> 
+  mutate(d2s = (interval(round(time, unit="day"), as.Date(paste0(wyear,"-04-29"), format = "%Y-%m-%d")))
+                  |> as.numeric('days')) |> 
+  filter(d2s %in% c(0:150)) |> 
+  group_by(wyear) |> 
+  arrange(d2s) |> 
+  mutate(cum_from = cumsum(value)) |> 
+  ungroup() |> 
+  filter(d2s %in% c(60, 90, 120, 150)) |> 
+  group_by(d2s) |> 
+  summarise(mean = mean(cum_from, na.rm=TRUE),
+          sd = sd(cum_from, na.rm = TRUE),
+          se = sd/sqrt(length(cum_from))) |> 
+  rename(cum_from = mean) |> 
+  mutate(wyear_avg = as.character("1990-2017"), 
+         wyear = as.factor(2008))
+
+
+from_avg2011 <- wyear_arquilla_cum |> 
+  mutate(d2s = (interval(round(time, unit="day"), as.Date(paste0(wyear,"-04-26"), format = "%Y-%m-%d")))
+                  |> as.numeric('days')) |> 
+  filter(d2s %in% c(0:150)) |> 
+  group_by(wyear) |> 
+  arrange(d2s) |> 
+  mutate(cum_from = cumsum(value)) |> 
+  ungroup() |> 
+  filter(d2s %in% c(60, 90, 120, 150)) |> 
+  group_by(d2s) |> 
+  summarise(mean = mean(cum_from, na.rm=TRUE),
+          sd = sd(cum_from, na.rm = TRUE),
+          se = sd/sqrt(length(cum_from))) |> 
+  rename(cum_from = mean) |> 
+  mutate(wyear_avg = as.character("1990-2017"), 
+         wyear = as.factor(2011))
+  
+from_avg2014 <- wyear_arquilla_cum |> 
+  mutate(d2s = (interval(round(time, unit="day"), as.Date(paste0(wyear,"-05-07"), format = "%Y-%m-%d")))
+                  |> as.numeric('days')) |> 
+  filter(d2s %in% c(0:150)) |> 
+  group_by(wyear) |> 
+  arrange(d2s) |> 
+  mutate(cum_from = cumsum(value)) |> 
+  ungroup() |> 
+  filter(d2s %in% c(60, 90, 120, 150)) |> 
+  group_by(d2s) |> 
+  summarise(mean = mean(cum_from, na.rm=TRUE),
+          sd = sd(cum_from, na.rm = TRUE),
+          se = sd/sqrt(length(cum_from))) |> 
+  rename(cum_from = mean) |> 
+  mutate(wyear_avg = as.character("1990-2017"), 
+         wyear = as.factor(2014))
+
+
+mean_froms <- bind_rows(
+  from_avg2008,
+  from_avg2011,
+  from_avg2014
+)
+
+mean_froms120 <- mean_froms |> filter(d2s == 120) 
+
+
+d2s |> 
+  filter(d2s == 120) |> 
+  ggplot(aes(x=as.factor(wyear), y=cum_from)) +
+  geom_bar(stat="identity", fill="lightblue", col="lightblue") +
+  # scale_fill_manual(values = col, name = "wyear") +
+  # facet_wrap(~d2s) + 
+  geom_point(
+    data = mean_froms120, aes(x=wyear, y=cum_from), col = "black", size = 4,
+  ) + 
+  geom_errorbar(
+    data = mean_froms120, 
+    aes(x=wyear, ymin = cum_from - se, ymax= cum_from + se), 
+    col = "black",
+    width = .15
+  ) +
+  ylab("Cummulative Rainfall (mm)") +
+  xlab("Year") +
+    theme_bw() + 
+  theme(
+    panel.grid = element_blank()
+  )
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+```{r, eval=FALSE, echo=FALSE}
+pre_cum |> 
+  ggplot(aes(x=doy, y=prec)) +
+  geom_bar(stat = "identity") +
+  facet_wrap(~year, ncol = 1) +
+  ylab("Precipitation (mm)") + 
+  xlab("Day of Year") +
+  theme_bw() + 
+  theme(
+    panel.grid = element_blank(),
+    # panel.grid.major.x = element_blank(),
+    strip.background = element_rect(fill=NA), 
+    strip.text = element_text(face="italic")
+  ) 
+  
+
+prec_cum_mean <- climate |> 
+  mutate(doy = lubridate::yday(date), 
+         year = lubridate::year(date)) |> 
+  group_by(year) |> 
+  mutate(cum = cumsum(prec)) |> 
+  dplyr::select(doy, cum, year) |> 
+  group_by(doy) |> 
+  summarise(mean = mean(cum, na.rm=TRUE),
+          sd = sd(cum, na.rm = TRUE),
+          se = sd/sqrt(length(cum))) |> 
+  rename(cum = mean) |> 
+  mutate(year = as.character("2008-2021"))
+
+prec_cum_line <- 
+  pre_cum |> 
+  mutate(year = as.factor(year)) |> 
+  group_by(year) |> 
+  mutate(cum = cumsum(prec)) |> 
+  dplyr::select(doy, year, cum) |> 
+  mutate(year = as.character(year)) |> 
+  relocate(year, .after = doy)
+
+points <- prec_cum_line |> 
+ group_by(year) |> 
+  filter(doy ==  max(doy))
+prec_cum_line_avg <- 
+  bind_rows(prec_cum_line, prec_cum_mean) |>
+  filter(doy < 127) |> 
+  rowwise() |> 
+  mutate(days_to_sampling = case_when(
+    year == "2008" ~ (doy - 119), 
+    year == "2011" ~ (doy - 115), 
+    year == "2014" ~ (doy - 126), 
+    year == "2008-2021" ~ (doy - 126))) 
+    
+
+prec_cum_line_avg |> 
+  ggplot(aes(x=doy, y=cum, col=as.factor(year))) +
+  geom_ribbon(aes(ymin = cum - se, ymax = cum + se), 
+              fill="gray", alpha = .1, linetype = 2, 
+              show.legend = FALSE) + 
+  geom_line() +
+  theme_bw() + 
+  theme(
+    panel.grid = element_blank()
+  ) +
+  ylab("Cummulative Rainfall (mm)") +
+  xlab("Day of year") + 
+  scale_color_manual(values=c("lightblue", "gray", "black", "orange"), 
+                     name = "year") +
+  geom_point(data = points, 
+             aes(x=doy, y=cum), 
+             size = 3) 
+
+prec_cum_line <- 
+  pre_cum |> 
+  group_by(year) |> 
+  mutate(cum = cumsum(prec))
+
+points <- prec_cum_line |> 
+ group_by(year) |> 
+  filter(doy ==  max(doy))
+
+prec_cum_line |> 
+  ggplot(aes(x=doy, y=cum, col=as.factor(year))) +
+  geom_line() +
+  theme_bw() + 
+  theme(
+    panel.grid = element_blank()
+  ) +
+  ylab("Cummulative Rainfall (mm)") +
+  xlab("Day of year") + 
+  scale_color_manual(values=c("lightblue", "black", "orange"), 
+                     name = "year") +
+  geom_point(data = points, 
+             aes(x=doy, y=cum), 
+             size = 3)
+  
+
+points |> 
+  mutate(year = as.factor(year)) |> 
+  ggplot(aes(x=year, y=cum, fill=year)) +
+  geom_bar(stat="identity") +
+    scale_fill_manual(values = col, name = "year") +
+  ylab("Cummulative Rainfall (mm), Cáñar PSN07") +
+  xlab("Year") +
+    theme_bw() + 
+  theme(
+    panel.grid = element_blank()
+  ) 
+```
+
+
+```{r}
+wpoints |> 
+  dplyr::select(-date) |> 
+  rename(`Cummulative precipitation` = cum) |> 
+  relocate(station) |> 
+  kableExtra::kbl() |> 
+  kable_styling()
+
+```
+
+
+# Temperature 
+```{r}
+pre2008 <- climate |> 
+  filter(date >= as.Date("2008-01-01", format="%Y-%m-%d")) |> 
+  filter(date < as.Date("2008-04-29", format="%Y-%m-%d")) 
+
+pre2011 <- climate |>
+  filter(date >= as.Date("2011-01-01", format="%Y-%m-%d")) |> 
+  filter(date < as.Date("2011-04-26", format="%Y-%m-%d")) 
+  
+pre2014 <- climate |>
+  filter(date >= as.Date("2014-01-01", format="%Y-%m-%d")) |> 
+  filter(date < as.Date("2014-05-07", format="%Y-%m-%d"))                     
+
+pre_cum <- 
+  bind_rows(
+    pre2008, pre2011, pre2014) |> 
+  mutate(year = lubridate::year(date), 
+         doy = lubridate::yday(date))
+
+t2008 <- pre_cum |> 
+  filter(year == 2008) |> 
+  filter(date >= as.Date("2008-03-29", format="%Y-%m-%d")) |> 
+  arrange(desc(doy)) |> 
+  mutate(d = -seq.int(nrow(.)))
+
+t2011 <- pre_cum |> 
+  filter(year == 2011) |> 
+  filter(date >= as.Date("2011-03-26", format="%Y-%m-%d")) |> 
+  arrange(desc(doy)) |> 
+  mutate(d = -seq.int(nrow(.)))
+
+
+t2014 <- pre_cum |> 
+  filter(year == 2014) |> 
+  filter(date >= as.Date("2014-04-06", format="%Y-%m-%d"))|> 
+  arrange(desc(doy)) |> 
+  mutate(d = -seq.int(nrow(.))) 
+
+temp <- bind_rows(t2008,t2011,t2014) |> dplyr::select(-prec)
+
+```
+
+```{r}
+temp |> 
+  mutate(year = as.factor(year)) |> 
+  ggplot(aes(x=d, y=tmed, colour=year)) +
+  geom_ribbon(aes(ymin = tmin, ymax=tmax, fill=year), 
+              colour=NA, alpha=.2) +
+  geom_line() +
+  scale_fill_manual(values = col, name = "year") +
+  scale_colour_manual(values = col, name = "year") +
+  ylab("Temperature (º)") +
+  xlab("Previous days") +
+    theme_bw() + 
+  theme(
+    panel.grid = element_blank()
+  ) 
+```
+
+```{r}
+temp |> 
+  dplyr::select(tmin, tmax, tmed, year) |> 
+  group_by(year) |> 
+  summarise(across(tmin:tmed, list(
+    mean = mean,
+    sd = sd))) |> 
+  mutate_at(2:7, list(~round(., 2))) |> 
+  unite("tmean", starts_with("tmed"), sep = " ± ") |> 
+  unite("tmin", starts_with("tmin"), sep = " ± ") |> 
+  unite("tmax", starts_with("tmax"), sep = " ± ") |> 
+  kableExtra::kbl() |> 
+  kable_styling()
+```
+

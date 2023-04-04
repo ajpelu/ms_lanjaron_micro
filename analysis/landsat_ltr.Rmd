@@ -1,0 +1,247 @@
+---
+title: "Annual Spectral index (Landsat)"
+author: "ajpelu"
+date: "2023-02-23"
+output: workflowr::wflow_html
+editor_options:
+  chunk_output_type: console
+---
+
+
+
+```{r, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(here)
+library(purrr)
+library(dygraphs)
+library(xts)
+library(ggpubr)
+library(kableExtra)
+```
+
+```{r, eval=FALSE, echo=FALSE}
+files <- list.files(here::here("data/ltr"), pattern = "*.csv", full.names = TRUE)
+
+customRead <- function(x) {
+  a <- read_csv(x) |>  
+    mutate(v = str_remove(basename(x), ".csv"))
+  return(a)}
+
+d <- files |> 
+  map(customRead) |> 
+  reduce(rbind) |> 
+  separate(v, into=c("vi", "plot")) |> 
+  rename_all(tolower) |> 
+  mutate(plot = toupper(plot)) 
+
+write_csv(d, "data/nbr_ndvi_landast_plot.csv")
+```
+
+```{r, message=FALSE}
+d <- read_csv("data/nbr_ndvi_landast_plot.csv") |> 
+  mutate(original = original/1000, 
+         fitted = fitted/1000, 
+         treatment = case_when(
+    str_detect(plot, "N") ~ "Unburned",
+    TRUE ~ "Burned"
+  ))
+```
+
+## NBR 
+
+```{r}
+cols2 <- c("LJN1" = "#74c476",
+          "LJN2" = "#74c476",
+          "LJN3" = "#74c476",
+          "LJQ2" = "#543005",
+          "LJQ1" = "#543005",
+          "LJQ3" = "#543005")
+
+nbr_plot <- d  |> 
+  filter(vi == "nbr") |> 
+  ggplot(aes(x=year, y=original, group=plot, colour=plot, linetype = plot)) + 
+  geom_point() + 
+  geom_line(aes(linetype = plot, colour = plot)) + 
+  scale_colour_manual(values=cols2, name="") +
+  theme_bw() +
+  ylab("NBR") + xlab("") +
+  theme(
+    panel.grid = element_blank(),
+    # panel.grid.major.x = element_blank(),
+    strip.background = element_rect(fill=NA), 
+    strip.text = element_text(face="italic")) 
+
+```
+
+```{r}
+ggsave(nbr_plot, 
+       filename= here::here("output/nbr_landsat.png"), 
+       device = "png", height = 10, width = 18, unit = "cm", dpi=150)
+```
+
+
+
+```{r}
+nbr <- d |> 
+  mutate(y = lubridate::ymd(year, truncated = 2L)) |> 
+  filter(vi == "nbr") |> 
+  dplyr::select(y, plot, nbr = original) |> 
+  pivot_wider(names_from = plot, values_from = nbr)
+
+nbr_ts <- xts(x = nbr[,-1], order.by = nbr$y)
+
+dygraph(nbr_ts) |>
+  dyOptions(drawPoints = TRUE, pointSize = 2) |> 
+  dyAxis("y", label = "NBR", valueRange = c(-0.2,.7)) |>
+  dyGroup(c("LJQ1", "LJQ2", "LJQ3"), 
+          color = c("#543005","#543005","#543005")) |> 
+  dySeries("LJQ1", strokeWidth = 1, strokePattern = "dashed") |> 
+  dySeries("LJQ2", strokeWidth = 1, strokePattern = "dotted") |> 
+  dyGroup(c("LJN1", "LJN2", "LJN3"), 
+          color = c("#74c476","#74c476","#74c476")) |> 
+  dySeries("LJN1", strokeWidth = 1, strokePattern = "dashed") |> 
+  dySeries("LJN2", strokeWidth = 1, strokePattern = "dotted") |> 
+  dyLegend(show = "always") |>
+  dyHighlight(highlightCircleSize = 5,
+              highlightSeriesBackgroundAlpha = 0.2, 
+              hideOnMouseOut = FALSE) |> 
+  dyLegend(show = "auto")
+```
+
+
+## NDVI 
+
+```{r}
+cols2 <- c("LJN1" = "#74c476",
+          "LJN2" = "#74c476",
+          "LJN3" = "#74c476",
+          "LJQ2" = "#543005",
+          "LJQ1" = "#543005",
+          "LJQ3" = "#543005")
+ndvi_plot <- d  |> 
+  filter(vi == "ndvi") |> 
+  ggplot(aes(x=year, y=original, group=plot, colour=plot)) + 
+  geom_point() + 
+  geom_line(aes(linetype = plot, colour = plot)) +
+  scale_colour_manual(values=cols2, name="") +
+  theme_bw() +
+  ylab("NDVI") + xlab("") +
+  theme(
+    panel.grid = element_blank(),
+    # panel.grid.major.x = element_blank(),
+    strip.background = element_rect(fill=NA), 
+    strip.text = element_text(face="italic"))
+```
+
+
+```{r}
+colour_plot <- c("Unburned" = "#74c476",
+                 "Burned" = "#543005")
+
+puntitos <- c("LJN1" = 15, "LJN2" = 16, "LJN3" = 17,
+          "LJQ1" = 22, "LJQ2" = 25, "LJQ3" = 23)
+
+cols_fill_puntitos <- c("LJN1" = "#74c476",
+          "LJN2" = "#74c476",
+          "LJN3" = "#74c476",
+          "LJQ2" = "white",
+          "LJQ1" = "white",
+          "LJQ3" = "white")
+
+ndvi_plotv2 <- d  |> 
+  filter(vi == "ndvi") |> 
+  ggplot(aes(x=year, y=original)) + 
+  geom_vline(xintercept = c(2008, 2011, 2014), colour = "gray") + 
+  geom_line(aes(linetype = plot, colour = treatment)) +
+  geom_point(aes(shape = plot, colour = treatment, fill = plot), size=2) + 
+  scale_colour_manual(values=colour_plot, name="Treatment") +
+  scale_shape_manual(values = puntitos, name ="plot") + 
+  scale_fill_manual(values= cols_fill_puntitos, name="plot") +
+  theme_bw() +
+  ylab("Annual NDVI") + xlab("") +
+  theme(
+    panel.grid = element_blank(),
+    # panel.grid.major.x = element_blank(),
+    strip.background = element_rect(fill=NA), 
+    strip.text = element_text(face="italic"))
+```
+
+```{r}
+ndvi_plotv2
+```
+
+
+```{r}
+ggsave(ndvi_plot, 
+       filename= here::here("output/ndvi_landsat.png"), 
+       device = "png", height = 10, width = 18, unit = "cm", dpi=150)
+
+ggsave(ndvi_plotv2, 
+       filename= here::here("output/ndvi_landsat_v2.png"), 
+       device = "png", height = 13, width = 20, unit = "cm", dpi=300)
+```
+
+
+```{r}
+ndvi <- d |> 
+  mutate(y = lubridate::ymd(year, truncated = 2L)) |> 
+  filter(vi == "ndvi") |> 
+  dplyr::select(y, plot, ndvi = original) |> 
+  pivot_wider(names_from = plot, values_from = ndvi)
+
+ndvi_ts <- xts(x = ndvi[,-1], order.by = ndvi$y)
+
+dygraph(ndvi_ts) |>
+  dyOptions(drawPoints = TRUE, pointSize = 2) |> 
+  dyAxis("y", label = "NDVI", valueRange = c(0,.7)) |>
+  dyGroup(c("LJQ1", "LJQ2", "LJQ3"), 
+          color = c("#543005","#543005","#543005")) |> 
+  dySeries("LJQ1", strokeWidth = 1, strokePattern = "dashed") |> 
+  dySeries("LJQ2", strokeWidth = 1, strokePattern = "dotted") |> 
+  dyGroup(c("LJN1", "LJN2", "LJN3"), 
+          color = c("#74c476","#74c476","#74c476")) |> 
+  dySeries("LJN1", strokeWidth = 1, strokePattern = "dashed") |> 
+  dySeries("LJN2", strokeWidth = 1, strokePattern = "dotted") |> 
+  dyLegend(show = "always") |>
+  dyHighlight(highlightCircleSize = 5,
+              highlightSeriesBackgroundAlpha = 0.2, 
+              hideOnMouseOut = FALSE) |> 
+  dyLegend(show = "auto")
+```
+
+
+```{r, message=FALSE, warning=FALSE}
+compare_ndvi <- d |> filter(vi == "ndvi") |>
+  filter(year %in% c(2002:2004, 2008, 2011, 2014)) |>
+  mutate(yearF = case_when(
+    year %in% 2002:2004 ~ "pre fire (2002-2004)", 
+    TRUE ~ as.character(year) 
+  )) |>
+  rename(ndvi = original)
+  
+my_comparisons <- 
+  list(c("pre fire (2002-2004)", "2008"), 
+       c("pre fire (2002-2004)", "2011"), 
+       c("pre fire (2002-2004)", "2014"))
+
+
+ggboxplot(compare_ndvi, 
+          x = "yearF", 
+          y = "ndvi", 
+          add = "jitter", 
+          xlab = "", 
+          ylab = "Annual NDVI") +  
+  stat_compare_means(ref.group = "pre fire (2002-2004)", 
+                     label = "p", label.y = 0.65)
+
+
+compare_means(ndvi ~ yearF, compare_ndvi, 
+              method = "wilcox.test", 
+              ref.group = "pre fire (2002-2004)",
+              p.adjust.method = "bonferroni") |> 
+  kableExtra::kbl() %>% 
+  kable_styling()
+```
+
+
+
