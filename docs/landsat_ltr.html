@@ -1,0 +1,1403 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="ajpelu" />
+
+<meta name="date" content="2023-02-23" />
+
+<title>Annual Spectral index (Landsat)</title>
+
+<script src="site_libs/header-attrs-2.18/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<script src="site_libs/htmlwidgets-1.6.2/htmlwidgets.js"></script>
+<link href="site_libs/dygraphs-1.1.1/dygraph.css" rel="stylesheet" />
+<script src="site_libs/dygraphs-1.1.1/dygraph-combined.js"></script>
+<script src="site_libs/dygraphs-1.1.1/shapes.js"></script>
+<script src="site_libs/moment-2.8.4/moment.js"></script>
+<script src="site_libs/moment-timezone-0.2.5/moment-timezone-with-data.js"></script>
+<script src="site_libs/moment-fquarter-1.0.0/moment-fquarter.min.js"></script>
+<script src="site_libs/dygraphs-binding-1.1.1.6/dygraphs.js"></script>
+<script src="site_libs/kePrint-0.0.1/kePrint.js"></script>
+<link href="site_libs/lightable-0.0.1/lightable.css" rel="stylesheet" />
+
+<link rel="icon" href="https://github.com/workflowr/workflowr-assets/raw/main/img/reproducible.png">
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">ms_lanjaron_micro</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="license.html">License</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">Annual Spectral index (Landsat)</h1>
+<h4 class="author">ajpelu</h4>
+<h4 class="date">2023-02-23</h4>
+
+</div>
+
+
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span>
+</button>
+</p>
+<div id="workflowr-report" class="collapse">
+<ul class="nav nav-tabs">
+<li class="active">
+<a data-toggle="tab" href="#summary">Summary</a>
+</li>
+<li>
+<a data-toggle="tab" href="#checks"> Checks <span
+class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> </a>
+</li>
+<li>
+<a data-toggle="tab" href="#versions">Past versions</a>
+</li>
+</ul>
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+<p>
+<strong>Last updated:</strong> 2023-04-05
+</p>
+<p>
+<strong>Checks:</strong> <span
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6
+<span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> 1
+</p>
+<p>
+<strong>Knit directory:</strong> <code>ms_lanjaron_micro/</code> <span
+class="glyphicon glyphicon-question-sign" aria-hidden="true"
+title="This is the local directory in which the code in this file was executed.">
+</span>
+</p>
+<p>
+This reproducible <a href="https://rmarkdown.rstudio.com">R Markdown</a>
+analysis was created with <a
+  href="https://github.com/workflowr/workflowr">workflowr</a> (version
+1.7.0). The <em>Checks</em> tab describes the reproducibility checks
+that were applied when the results were created. The <em>Past
+versions</em> tab lists the development history.
+</p>
+<hr>
+</div>
+<div id="checks" class="tab-pane fade">
+<div id="workflowr-checks" class="panel-group">
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguncommittedchanges">
+<span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> <strong>R Markdown file:</strong> uncommitted
+changes </a>
+</p>
+</div>
+<div id="strongRMarkdownfilestronguncommittedchanges"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>The R Markdown is untracked by Git. To know which version of the R
+Markdown file created these results, you’ll want to first commit it to
+the Git repo. If you’re still working on the analysis, you can ignore
+this warning. When you’re finished, you can run
+<code>wflow_publish</code> to commit the R Markdown file and build the
+HTML.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+</p>
+</div>
+<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! The global environment was empty. Objects defined in the
+global environment can affect the analysis in your R Markdown file in
+unknown ways. For reproduciblity it’s best to always run the code in an
+empty environment.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20230217code">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Seed:</strong>
+<code>set.seed(20230217)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed20230217code"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(20230217)</code> was run prior to running
+the code in the R Markdown file. Setting a seed ensures that any results
+that rely on randomness, e.g. subsampling or permutations, are
+reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Session information:</strong>
+recorded </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongrecorded"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Recording the operating system, R version, and package
+versions is critical for reproducibility.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+</p>
+</div>
+<div id="strongCachestrongnone" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Nice! There were no cached chunks for this analysis, so you can be
+confident that you successfully produced the results during this
+run.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+</p>
+</div>
+<div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Using relative paths to the files within your workflowr
+project makes it easier to run your code on other machines.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomajpelumslanjaronmicrotree7e3c0b2fd164124faa40f85d482d814b6be6b291targetblank7e3c0b2a">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Repository version:</strong>
+<a href="https://github.com/ajpelu/ms_lanjaron_micro/tree/7e3c0b2fd164124faa40f85d482d814b6be6b291" target="_blank">7e3c0b2</a>
+</a>
+</p>
+</div>
+<div
+id="strongRepositoryversionstrongahrefhttpsgithubcomajpelumslanjaronmicrotree7e3c0b2fd164124faa40f85d482d814b6be6b291targetblank7e3c0b2a"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Great! You are using Git for version control. Tracking code development
+and connecting the code version to the results is critical for
+reproducibility.
+</p>
+<p>
+The results in this page were generated with repository version
+<a href="https://github.com/ajpelu/ms_lanjaron_micro/tree/7e3c0b2fd164124faa40f85d482d814b6be6b291" target="_blank">7e3c0b2</a>.
+See the <em>Past versions</em> tab to see a history of the changes made
+to the R Markdown and HTML files.
+</p>
+<p>
+Note that you need to be careful to ensure that all relevant files for
+the analysis have been committed to Git prior to generating the results
+(you can use <code>wflow_publish</code> or
+<code>wflow_git_commit</code>). workflowr only checks the R Markdown
+file, but you know if there are other scripts or data files that it
+depends on. Below is the status of the Git repository when the results
+were generated:
+</p>
+<pre><code>
+Ignored files:
+    Ignored:    .Rhistory
+    Ignored:    .Rproj.user/
+
+Untracked files:
+    Untracked:  .Rprofile
+    Untracked:  .gitattributes
+    Untracked:  .gitignore
+    Untracked:  README.md
+    Untracked:  _workflowr.yml
+    Untracked:  analysis/_site.yml
+    Untracked:  analysis/about.Rmd
+    Untracked:  analysis/climate_data.Rmd
+    Untracked:  analysis/img/
+    Untracked:  analysis/index.Rmd
+    Untracked:  analysis/landsat_ltr.Rmd
+    Untracked:  analysis/license.Rmd
+    Untracked:  analysis/mapa_location.qgz
+    Untracked:  analysis/modis_ndvi.Rmd
+    Untracked:  code/
+    Untracked:  data/
+    Untracked:  ms_lanjaron_micro.Rproj
+    Untracked:  output/
+
+</code></pre>
+<p>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not
+included in this status report because it is ok for generated content to
+have uncommitted changes.
+</p>
+</div>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div id="versions" class="tab-pane fade">
+
+<p>
+These are the previous versions of the repository in which changes were
+made to the R Markdown (<code>analysis/landsat_ltr.Rmd</code>) and HTML
+(<code>docs/landsat_ltr.html</code>) files. If you’ve configured a
+remote Git repository (see <code>?wflow_git_remote</code>), click on the
+hyperlinks in the table below to view the files as they were in that
+past version.
+</p>
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+File
+</th>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+<th>
+Message
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/ajpelu/ms_lanjaron_micro/blob/7e3c0b2fd164124faa40f85d482d814b6be6b291/analysis/landsat_ltr.Rmd" target="_blank">7e3c0b2</a>
+</td>
+<td>
+ajpelu
+</td>
+<td>
+2023-04-05
+</td>
+<td>
+wflow_publish("analysis/dnbr.Rmd")
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/ajpelu/ms_lanjaron_micro/7e3c0b2fd164124faa40f85d482d814b6be6b291/docs/landsat_ltr.html" target="_blank">7e3c0b2</a>
+</td>
+<td>
+ajpelu
+</td>
+<td>
+2023-04-05
+</td>
+<td>
+wflow_publish("analysis/dnbr.Rmd")
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/ajpelu/ms_lanjaron_micro/blob/7e3aa07ef4dd88327b10e2fee67ad87ffcd371d3/analysis/landsat_ltr.Rmd" target="_blank">7e3aa07</a>
+</td>
+<td>
+ajpelu
+</td>
+<td>
+2023-04-04
+</td>
+<td>
+add
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/ajpelu/ms_lanjaron_micro/7e3aa07ef4dd88327b10e2fee67ad87ffcd371d3/docs/landsat_ltr.html" target="_blank">7e3aa07</a>
+</td>
+<td>
+ajpelu
+</td>
+<td>
+2023-04-04
+</td>
+<td>
+add
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/ajpelu/ms_lanjaron_micro/c30a5f8cbd4645c573ea28795527253a8b1c1209/docs/landsat_ltr.html" target="_blank">c30a5f8</a>
+</td>
+<td>
+ajpelu
+</td>
+<td>
+2023-03-16
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/ajpelu/ms_lanjaron_micro/blob/9e89b0609c16cda35397f6d012001eb66492f1a2/analysis/landsat_ltr.Rmd" target="_blank">9e89b06</a>
+</td>
+<td>
+ajpelu
+</td>
+<td>
+2023-03-16
+</td>
+<td>
+add analysis
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/ajpelu/ms_lanjaron_micro/blob/89b486cd53dc30fc6811a49390bcbd2606c4641c/analysis/landsat_ltr.Rmd" target="_blank">89b486c</a>
+</td>
+<td>
+ajpelu
+</td>
+<td>
+2023-03-15
+</td>
+<td>
+update site
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/ajpelu/ms_lanjaron_micro/4b9652716f71ad18d8ad5fde7d5c0191db8e1995/docs/landsat_ltr.html" target="_blank">4b96527</a>
+</td>
+<td>
+ajpelu
+</td>
+<td>
+2023-03-15
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/ajpelu/ms_lanjaron_micro/blob/a594143fc33cfabc83ef588272bfb681aaafde02/analysis/landsat_ltr.Rmd" target="_blank">a594143</a>
+</td>
+<td>
+ajpelu
+</td>
+<td>
+2023-03-15
+</td>
+<td>
+add new data
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/ajpelu/ms_lanjaron_micro/a594143fc33cfabc83ef588272bfb681aaafde02/docs/landsat_ltr.html" target="_blank">a594143</a>
+</td>
+<td>
+ajpelu
+</td>
+<td>
+2023-03-15
+</td>
+<td>
+add new data
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/ajpelu/ms_lanjaron_micro/blob/fe8ca6c62609cab9927b5614ed17c72916d5f084/analysis/landsat_ltr.Rmd" target="_blank">fe8ca6c</a>
+</td>
+<td>
+ajpelu
+</td>
+<td>
+2023-02-24
+</td>
+<td>
+add repo
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/ajpelu/ms_lanjaron_micro/fe8ca6c62609cab9927b5614ed17c72916d5f084/docs/landsat_ltr.html" target="_blank">fe8ca6c</a>
+</td>
+<td>
+ajpelu
+</td>
+<td>
+2023-02-24
+</td>
+<td>
+add repo
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr>
+</div>
+</div>
+</div>
+<pre class="r"><code>library(tidyverse)
+library(here)
+library(purrr)
+library(dygraphs)
+library(xts)
+library(ggpubr)
+library(kableExtra)</code></pre>
+<pre class="r"><code>d &lt;- read_csv(&quot;data/nbr_ndvi_landast_plot.csv&quot;) |&gt; 
+  mutate(original = original/1000, 
+         fitted = fitted/1000, 
+         treatment = case_when(
+    str_detect(plot, &quot;N&quot;) ~ &quot;Unburned&quot;,
+    TRUE ~ &quot;Burned&quot;
+  ))</code></pre>
+<div id="nbr" class="section level2">
+<h2>NBR</h2>
+<pre class="r"><code>cols2 &lt;- c(&quot;LJN1&quot; = &quot;#74c476&quot;,
+          &quot;LJN2&quot; = &quot;#74c476&quot;,
+          &quot;LJN3&quot; = &quot;#74c476&quot;,
+          &quot;LJQ2&quot; = &quot;#543005&quot;,
+          &quot;LJQ1&quot; = &quot;#543005&quot;,
+          &quot;LJQ3&quot; = &quot;#543005&quot;)
+
+nbr_plot &lt;- d  |&gt; 
+  filter(vi == &quot;nbr&quot;) |&gt; 
+  ggplot(aes(x=year, y=original, group=plot, colour=plot, linetype = plot)) + 
+  geom_point() + 
+  geom_line(aes(linetype = plot, colour = plot)) + 
+  scale_colour_manual(values=cols2, name=&quot;&quot;) +
+  theme_bw() +
+  ylab(&quot;NBR&quot;) + xlab(&quot;&quot;) +
+  theme(
+    panel.grid = element_blank(),
+    # panel.grid.major.x = element_blank(),
+    strip.background = element_rect(fill=NA), 
+    strip.text = element_text(face=&quot;italic&quot;)) </code></pre>
+<pre class="r"><code>ggsave(nbr_plot, 
+       filename= here::here(&quot;output/nbr_landsat.png&quot;), 
+       device = &quot;png&quot;, height = 10, width = 18, unit = &quot;cm&quot;, dpi=150)</code></pre>
+<pre class="r"><code>nbr &lt;- d |&gt; 
+  mutate(y = lubridate::ymd(year, truncated = 2L)) |&gt; 
+  filter(vi == &quot;nbr&quot;) |&gt; 
+  dplyr::select(y, plot, nbr = original) |&gt; 
+  pivot_wider(names_from = plot, values_from = nbr)
+
+nbr_ts &lt;- xts(x = nbr[,-1], order.by = nbr$y)
+
+dygraph(nbr_ts) |&gt;
+  dyOptions(drawPoints = TRUE, pointSize = 2) |&gt; 
+  dyAxis(&quot;y&quot;, label = &quot;NBR&quot;, valueRange = c(-0.2,.7)) |&gt;
+  dyGroup(c(&quot;LJQ1&quot;, &quot;LJQ2&quot;, &quot;LJQ3&quot;), 
+          color = c(&quot;#543005&quot;,&quot;#543005&quot;,&quot;#543005&quot;)) |&gt; 
+  dySeries(&quot;LJQ1&quot;, strokeWidth = 1, strokePattern = &quot;dashed&quot;) |&gt; 
+  dySeries(&quot;LJQ2&quot;, strokeWidth = 1, strokePattern = &quot;dotted&quot;) |&gt; 
+  dyGroup(c(&quot;LJN1&quot;, &quot;LJN2&quot;, &quot;LJN3&quot;), 
+          color = c(&quot;#74c476&quot;,&quot;#74c476&quot;,&quot;#74c476&quot;)) |&gt; 
+  dySeries(&quot;LJN1&quot;, strokeWidth = 1, strokePattern = &quot;dashed&quot;) |&gt; 
+  dySeries(&quot;LJN2&quot;, strokeWidth = 1, strokePattern = &quot;dotted&quot;) |&gt; 
+  dyLegend(show = &quot;always&quot;) |&gt;
+  dyHighlight(highlightCircleSize = 5,
+              highlightSeriesBackgroundAlpha = 0.2, 
+              hideOnMouseOut = FALSE) |&gt; 
+  dyLegend(show = &quot;auto&quot;)</code></pre>
+<div class="dygraphs html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-5138cd5188c1734fcd5b" style="width:672px;height:480px;"></div>
+<script type="application/json" data-for="htmlwidget-5138cd5188c1734fcd5b">{"x":{"attrs":{"axes":{"x":{"pixelsPerLabel":60,"drawAxis":true},"y":{"drawAxis":true,"valueRange":[-0.2,0.7]}},"labels":["year","LJQ3","LJQ1","LJQ2","LJN3","LJN1","LJN2"],"retainDateWindow":false,"stackedGraph":false,"fillGraph":false,"fillAlpha":0.15,"stepPlot":false,"drawPoints":true,"pointSize":2,"drawGapEdgePoints":false,"connectSeparatedPoints":false,"strokeWidth":1,"strokeBorderColor":"white","colorValue":0.5,"colorSaturation":1,"includeZero":false,"drawAxesAtZero":false,"logscale":false,"axisTickSize":3,"axisLineColor":"black","axisLineWidth":0.3,"axisLabelColor":"black","axisLabelFontSize":14,"axisLabelWidth":60,"drawGrid":true,"gridLineWidth":0.3,"rightGap":5,"digitsAfterDecimal":2,"labelsKMB":false,"labelsKMG2":false,"labelsUTC":false,"maxNumberWidth":6,"animatedZooms":false,"mobileDisableYTouch":true,"disableZoom":false,"ylabel":"NBR","colors":["#543005","#543005","#543005","#74c476","#74c476","#74c476"],"series":{"LJQ1":{"axis":"y","strokeWidth":1,"strokePattern":[7,3]},"LJQ2":{"axis":"y","strokeWidth":1,"strokePattern":[2,2]},"LJQ3":{"axis":"y","group":"LJQ1LJQ2LJQ3"},"LJN1":{"axis":"y","strokeWidth":1,"strokePattern":[7,3]},"LJN2":{"axis":"y","strokeWidth":1,"strokePattern":[2,2]},"LJN3":{"axis":"y","group":"LJN1LJN2LJN3"}},"highlightCircleSize":5,"highlightSeriesBackgroundAlpha":0.2,"highlightSeriesOpts":[],"legend":"auto","labelsDivWidth":250,"labelsShowZeroValues":true,"labelsSeparateLines":false,"hideOverlayOnMouseOut":true},"scale":"yearly","annotations":[],"shadings":[],"events":[],"format":"date","data":[["2000-01-01T00:00:00.000Z","2001-01-01T00:00:00.000Z","2002-01-01T00:00:00.000Z","2003-01-01T00:00:00.000Z","2004-01-01T00:00:00.000Z","2005-01-01T00:00:00.000Z","2006-01-01T00:00:00.000Z","2007-01-01T00:00:00.000Z","2008-01-01T00:00:00.000Z","2009-01-01T00:00:00.000Z","2010-01-01T00:00:00.000Z","2011-01-01T00:00:00.000Z","2012-01-01T00:00:00.000Z","2013-01-01T00:00:00.000Z","2014-01-01T00:00:00.000Z","2015-01-01T00:00:00.000Z","2016-01-01T00:00:00.000Z","2017-01-01T00:00:00.000Z","2018-01-01T00:00:00.000Z","2019-01-01T00:00:00.000Z","2020-01-01T00:00:00.000Z","2021-01-01T00:00:00.000Z"],[0.227179,0.204966,0.236426,0.246078,0.263822,0.193102,0.089779,0.155282,0.14319,0.141869,0.165217,0.181498,0.191499,0.261637,0.224086,0.244918,0.264787,0.233253,0.260492,0.258203,0.252121,0.299653],[0.285828,0.328257,0.351985,0.350859,0.398289,0.313797,-0.03146,0.187788,0.233147,0.20073,0.182047,0.277919,0.277556,0.271255,0.309689,0.310145,0.319636,0.343398,0.352436,0.364454,0.331223,0.35811],[0.276651,0.28583,0.321304,0.325648,0.364854,0.306392,-0.02623,0.137537,0.130928,0.086716,0.182292,0.233729,0.213826,0.239416,0.229341,0.269943,0.270225,0.223807,0.292197,0.304178,0.311555,0.315206],[0.2876,0.296012,0.284564,0.307565,0.312364,0.258385,0.240908,0.276398,0.219807,0.252666,0.315417,0.325554,0.355603,0.36222,0.350155,0.314735,0.391745,0.358861,0.380757,0.371388,0.394334,0.416646],[0.321463,0.331023,0.313265,0.329797,0.375407,0.33818,0.242073,0.34843,0.234934,0.316129,0.34698,0.343262,0.35462,0.382843,0.400437,0.406019,0.399619,0.384767,0.442591,0.414986,0.414777,0.457989],[0.387786,0.410768,0.382237,0.424257,0.426904,0.390307,0.306304,0.391326,0.319724,0.391304,0.406767,0.44976,0.38878,0.451709,0.471952,0.480367,0.464845,0.416881,0.502765,0.43949,0.484406,0.517376]],"fixedtz":false,"tzone":"UTC"},"evals":[],"jsHooks":[]}</script>
+</div>
+<div id="ndvi" class="section level2">
+<h2>NDVI</h2>
+<pre class="r"><code>cols2 &lt;- c(&quot;LJN1&quot; = &quot;#74c476&quot;,
+          &quot;LJN2&quot; = &quot;#74c476&quot;,
+          &quot;LJN3&quot; = &quot;#74c476&quot;,
+          &quot;LJQ2&quot; = &quot;#543005&quot;,
+          &quot;LJQ1&quot; = &quot;#543005&quot;,
+          &quot;LJQ3&quot; = &quot;#543005&quot;)
+ndvi_plot &lt;- d  |&gt; 
+  filter(vi == &quot;ndvi&quot;) |&gt; 
+  ggplot(aes(x=year, y=original, group=plot, colour=plot)) + 
+  geom_point() + 
+  geom_line(aes(linetype = plot, colour = plot)) +
+  scale_colour_manual(values=cols2, name=&quot;&quot;) +
+  theme_bw() +
+  ylab(&quot;NDVI&quot;) + xlab(&quot;&quot;) +
+  theme(
+    panel.grid = element_blank(),
+    # panel.grid.major.x = element_blank(),
+    strip.background = element_rect(fill=NA), 
+    strip.text = element_text(face=&quot;italic&quot;))</code></pre>
+<pre class="r"><code>colour_plot &lt;- c(&quot;Unburned&quot; = &quot;#74c476&quot;,
+                 &quot;Burned&quot; = &quot;#543005&quot;)
+
+puntitos &lt;- c(&quot;LJN1&quot; = 15, &quot;LJN2&quot; = 16, &quot;LJN3&quot; = 17,
+          &quot;LJQ1&quot; = 22, &quot;LJQ2&quot; = 25, &quot;LJQ3&quot; = 23)
+
+cols_fill_puntitos &lt;- c(&quot;LJN1&quot; = &quot;#74c476&quot;,
+          &quot;LJN2&quot; = &quot;#74c476&quot;,
+          &quot;LJN3&quot; = &quot;#74c476&quot;,
+          &quot;LJQ2&quot; = &quot;white&quot;,
+          &quot;LJQ1&quot; = &quot;white&quot;,
+          &quot;LJQ3&quot; = &quot;white&quot;)
+
+ndvi_plotv2 &lt;- d  |&gt; 
+  filter(vi == &quot;ndvi&quot;) |&gt; 
+  ggplot(aes(x=year, y=original)) + 
+  geom_vline(xintercept = c(2008, 2011, 2014), colour = &quot;gray&quot;) + 
+  geom_line(aes(linetype = plot, colour = treatment)) +
+  geom_point(aes(shape = plot, colour = treatment, fill = plot), size=2) + 
+  scale_colour_manual(values=colour_plot, name=&quot;Treatment&quot;) +
+  scale_shape_manual(values = puntitos, name =&quot;plot&quot;) + 
+  scale_fill_manual(values= cols_fill_puntitos, name=&quot;plot&quot;) +
+  theme_bw() +
+  ylab(&quot;Annual NDVI&quot;) + xlab(&quot;&quot;) +
+  theme(
+    panel.grid = element_blank(),
+    # panel.grid.major.x = element_blank(),
+    strip.background = element_rect(fill=NA), 
+    strip.text = element_text(face=&quot;italic&quot;))</code></pre>
+<pre class="r"><code>ndvi_plotv2</code></pre>
+<p><img src="figure/landsat_ltr.Rmd/unnamed-chunk-9-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-9-1">
+Past versions of unnamed-chunk-9-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-9-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/ajpelu/ms_lanjaron_micro/blob/7e3c0b2fd164124faa40f85d482d814b6be6b291/docs/figure/landsat_ltr.Rmd/unnamed-chunk-9-1.png" target="_blank">7e3c0b2</a>
+</td>
+<td>
+ajpelu
+</td>
+<td>
+2023-04-05
+</td>
+</tr>
+<tr>
+<td>
+<a href="https://github.com/ajpelu/ms_lanjaron_micro/blob/7e3aa07ef4dd88327b10e2fee67ad87ffcd371d3/docs/figure/landsat_ltr.Rmd/unnamed-chunk-9-1.png" target="_blank">7e3aa07</a>
+</td>
+<td>
+ajpelu
+</td>
+<td>
+2023-04-04
+</td>
+</tr>
+<tr>
+<td>
+<a href="https://github.com/ajpelu/ms_lanjaron_micro/blob/c30a5f8cbd4645c573ea28795527253a8b1c1209/docs/figure/landsat_ltr.Rmd/unnamed-chunk-9-1.png" target="_blank">c30a5f8</a>
+</td>
+<td>
+ajpelu
+</td>
+<td>
+2023-03-16
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<pre class="r"><code>ggsave(ndvi_plot, 
+       filename= here::here(&quot;output/ndvi_landsat.png&quot;), 
+       device = &quot;png&quot;, height = 10, width = 18, unit = &quot;cm&quot;, dpi=150)
+
+ggsave(ndvi_plotv2, 
+       filename= here::here(&quot;output/ndvi_landsat_v2.png&quot;), 
+       device = &quot;png&quot;, height = 13, width = 20, unit = &quot;cm&quot;, dpi=300)</code></pre>
+<pre class="r"><code>ndvi &lt;- d |&gt; 
+  mutate(y = lubridate::ymd(year, truncated = 2L)) |&gt; 
+  filter(vi == &quot;ndvi&quot;) |&gt; 
+  dplyr::select(y, plot, ndvi = original) |&gt; 
+  pivot_wider(names_from = plot, values_from = ndvi)
+
+ndvi_ts &lt;- xts(x = ndvi[,-1], order.by = ndvi$y)
+
+dygraph(ndvi_ts) |&gt;
+  dyOptions(drawPoints = TRUE, pointSize = 2) |&gt; 
+  dyAxis(&quot;y&quot;, label = &quot;NDVI&quot;, valueRange = c(0,.7)) |&gt;
+  dyGroup(c(&quot;LJQ1&quot;, &quot;LJQ2&quot;, &quot;LJQ3&quot;), 
+          color = c(&quot;#543005&quot;,&quot;#543005&quot;,&quot;#543005&quot;)) |&gt; 
+  dySeries(&quot;LJQ1&quot;, strokeWidth = 1, strokePattern = &quot;dashed&quot;) |&gt; 
+  dySeries(&quot;LJQ2&quot;, strokeWidth = 1, strokePattern = &quot;dotted&quot;) |&gt; 
+  dyGroup(c(&quot;LJN1&quot;, &quot;LJN2&quot;, &quot;LJN3&quot;), 
+          color = c(&quot;#74c476&quot;,&quot;#74c476&quot;,&quot;#74c476&quot;)) |&gt; 
+  dySeries(&quot;LJN1&quot;, strokeWidth = 1, strokePattern = &quot;dashed&quot;) |&gt; 
+  dySeries(&quot;LJN2&quot;, strokeWidth = 1, strokePattern = &quot;dotted&quot;) |&gt; 
+  dyLegend(show = &quot;always&quot;) |&gt;
+  dyHighlight(highlightCircleSize = 5,
+              highlightSeriesBackgroundAlpha = 0.2, 
+              hideOnMouseOut = FALSE) |&gt; 
+  dyLegend(show = &quot;auto&quot;)</code></pre>
+<div class="dygraphs html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-2b474f9da709e985f831" style="width:672px;height:480px;"></div>
+<script type="application/json" data-for="htmlwidget-2b474f9da709e985f831">{"x":{"attrs":{"axes":{"x":{"pixelsPerLabel":60,"drawAxis":true},"y":{"drawAxis":true,"valueRange":[0,0.7]}},"labels":["year","LJQ3","LJQ1","LJQ2","LJN3","LJN1","LJN2"],"retainDateWindow":false,"stackedGraph":false,"fillGraph":false,"fillAlpha":0.15,"stepPlot":false,"drawPoints":true,"pointSize":2,"drawGapEdgePoints":false,"connectSeparatedPoints":false,"strokeWidth":1,"strokeBorderColor":"white","colorValue":0.5,"colorSaturation":1,"includeZero":false,"drawAxesAtZero":false,"logscale":false,"axisTickSize":3,"axisLineColor":"black","axisLineWidth":0.3,"axisLabelColor":"black","axisLabelFontSize":14,"axisLabelWidth":60,"drawGrid":true,"gridLineWidth":0.3,"rightGap":5,"digitsAfterDecimal":2,"labelsKMB":false,"labelsKMG2":false,"labelsUTC":false,"maxNumberWidth":6,"animatedZooms":false,"mobileDisableYTouch":true,"disableZoom":false,"ylabel":"NDVI","colors":["#543005","#543005","#543005","#74c476","#74c476","#74c476"],"series":{"LJQ1":{"axis":"y","strokeWidth":1,"strokePattern":[7,3]},"LJQ2":{"axis":"y","strokeWidth":1,"strokePattern":[2,2]},"LJQ3":{"axis":"y","group":"LJQ1LJQ2LJQ3"},"LJN1":{"axis":"y","strokeWidth":1,"strokePattern":[7,3]},"LJN2":{"axis":"y","strokeWidth":1,"strokePattern":[2,2]},"LJN3":{"axis":"y","group":"LJN1LJN2LJN3"}},"highlightCircleSize":5,"highlightSeriesBackgroundAlpha":0.2,"highlightSeriesOpts":[],"legend":"auto","labelsDivWidth":250,"labelsShowZeroValues":true,"labelsSeparateLines":false,"hideOverlayOnMouseOut":true},"scale":"yearly","annotations":[],"shadings":[],"events":[],"format":"date","data":[["2000-01-01T00:00:00.000Z","2001-01-01T00:00:00.000Z","2002-01-01T00:00:00.000Z","2003-01-01T00:00:00.000Z","2004-01-01T00:00:00.000Z","2005-01-01T00:00:00.000Z","2006-01-01T00:00:00.000Z","2007-01-01T00:00:00.000Z","2008-01-01T00:00:00.000Z","2009-01-01T00:00:00.000Z","2010-01-01T00:00:00.000Z","2011-01-01T00:00:00.000Z","2012-01-01T00:00:00.000Z","2013-01-01T00:00:00.000Z","2014-01-01T00:00:00.000Z","2015-01-01T00:00:00.000Z","2016-01-01T00:00:00.000Z","2017-01-01T00:00:00.000Z","2018-01-01T00:00:00.000Z","2019-01-01T00:00:00.000Z","2020-01-01T00:00:00.000Z","2021-01-01T00:00:00.000Z"],[0.295652,0.294795,0.335644,0.309547,0.340535,0.294335,0.191408,0.193651,0.251468,0.234414,0.251072,0.316642,0.277998,0.330271,0.313764,0.305584,0.328318,0.285284,0.330364,0.334678,0.348731,0.361702],[0.416813,0.436893,0.48146,0.443154,0.507289,0.476107,0.169101,0.311747,0.350166,0.319298,0.342113,0.41462,0.413049,0.36104,0.415685,0.420639,0.436706,0.420319,0.415292,0.436029,0.414596,0.442614],[0.400856,0.418279,0.435342,0.437908,0.45938,0.431963,0.160912,0.239048,0.30285,0.256533,0.365974,0.372622,0.315762,0.342487,0.380605,0.38561,0.383846,0.36105,0.398649,0.391191,0.422904,0.423045],[0.329601,0.345137,0.36951,0.367176,0.383321,0.356761,0.323958,0.346389,0.356069,0.361895,0.3862,0.416106,0.423737,0.433402,0.437041,0.414847,0.472045,0.428277,0.457739,0.442351,0.472987,0.465057],[0.40837,0.420719,0.433993,0.477704,0.517127,0.444655,0.380313,0.439938,0.413622,0.452149,0.44562,0.453249,0.471748,0.480451,0.492375,0.509534,0.544737,0.486243,0.554167,0.51232,0.540627,0.562321],[0.458768,0.498941,0.498012,0.53666,0.515364,0.474033,0.422792,0.485578,0.455556,0.4848,0.509692,0.523404,0.498672,0.551615,0.583266,0.559076,0.552805,0.530295,0.613736,0.573648,0.590836,0.629435]],"fixedtz":false,"tzone":"UTC"},"evals":[],"jsHooks":[]}</script>
+<pre class="r"><code>compare_ndvi &lt;- d |&gt; filter(vi == &quot;ndvi&quot;) |&gt;
+  filter(year %in% c(2002:2004, 2008, 2011, 2014)) |&gt;
+  mutate(yearF = case_when(
+    year %in% 2002:2004 ~ &quot;pre fire (2002-2004)&quot;, 
+    TRUE ~ as.character(year) 
+  )) |&gt;
+  rename(ndvi = original)
+  
+my_comparisons &lt;- 
+  list(c(&quot;pre fire (2002-2004)&quot;, &quot;2008&quot;), 
+       c(&quot;pre fire (2002-2004)&quot;, &quot;2011&quot;), 
+       c(&quot;pre fire (2002-2004)&quot;, &quot;2014&quot;))
+
+
+ggboxplot(compare_ndvi, 
+          x = &quot;yearF&quot;, 
+          y = &quot;ndvi&quot;, 
+          add = &quot;jitter&quot;, 
+          xlab = &quot;&quot;, 
+          ylab = &quot;Annual NDVI&quot;) +  
+  stat_compare_means(ref.group = &quot;pre fire (2002-2004)&quot;, 
+                     label = &quot;p&quot;, label.y = 0.65)</code></pre>
+<p><img src="figure/landsat_ltr.Rmd/unnamed-chunk-12-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-12-1">
+Past versions of unnamed-chunk-12-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-12-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/ajpelu/ms_lanjaron_micro/blob/7e3c0b2fd164124faa40f85d482d814b6be6b291/docs/figure/landsat_ltr.Rmd/unnamed-chunk-12-1.png" target="_blank">7e3c0b2</a>
+</td>
+<td>
+ajpelu
+</td>
+<td>
+2023-04-05
+</td>
+</tr>
+<tr>
+<td>
+<a href="https://github.com/ajpelu/ms_lanjaron_micro/blob/7e3aa07ef4dd88327b10e2fee67ad87ffcd371d3/docs/figure/landsat_ltr.Rmd/unnamed-chunk-12-1.png" target="_blank">7e3aa07</a>
+</td>
+<td>
+ajpelu
+</td>
+<td>
+2023-04-04
+</td>
+</tr>
+<tr>
+<td>
+<a href="https://github.com/ajpelu/ms_lanjaron_micro/blob/c30a5f8cbd4645c573ea28795527253a8b1c1209/docs/figure/landsat_ltr.Rmd/unnamed-chunk-12-1.png" target="_blank">c30a5f8</a>
+</td>
+<td>
+ajpelu
+</td>
+<td>
+2023-03-16
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<pre class="r"><code>compare_means(ndvi ~ yearF, compare_ndvi, 
+              method = &quot;wilcox.test&quot;, 
+              ref.group = &quot;pre fire (2002-2004)&quot;,
+              p.adjust.method = &quot;bonferroni&quot;) |&gt; 
+  kableExtra::kbl() %&gt;% 
+  kable_styling()</code></pre>
+<table class="table" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+.y.
+</th>
+<th style="text-align:left;">
+group1
+</th>
+<th style="text-align:left;">
+group2
+</th>
+<th style="text-align:right;">
+p
+</th>
+<th style="text-align:right;">
+p.adj
+</th>
+<th style="text-align:left;">
+p.format
+</th>
+<th style="text-align:left;">
+p.signif
+</th>
+<th style="text-align:left;">
+method
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+ndvi
+</td>
+<td style="text-align:left;">
+pre fire (2002-2004)
+</td>
+<td style="text-align:left;">
+2008
+</td>
+<td style="text-align:right;">
+0.0330025
+</td>
+<td style="text-align:right;">
+0.099
+</td>
+<td style="text-align:left;">
+0.033
+</td>
+<td style="text-align:left;">
+<ul>
+<li></td>
+<td style="text-align:left;">
+Wilcoxon
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ndvi
+</td>
+<td style="text-align:left;">
+pre fire (2002-2004)
+</td>
+<td style="text-align:left;">
+2011
+</td>
+<td style="text-align:right;">
+0.5805225
+</td>
+<td style="text-align:right;">
+1.000
+</td>
+<td style="text-align:left;">
+0.581
+</td>
+<td style="text-align:left;">
+ns
+</td>
+<td style="text-align:left;">
+Wilcoxon
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ndvi
+</td>
+<td style="text-align:left;">
+pre fire (2002-2004)
+</td>
+<td style="text-align:left;">
+2014
+</td>
+<td style="text-align:right;">
+0.8711700
+</td>
+<td style="text-align:right;">
+1.000
+</td>
+<td style="text-align:left;">
+0.871
+</td>
+<td style="text-align:left;">
+ns
+</td>
+<td style="text-align:left;">
+Wilcoxon
+</td>
+</tr>
+</tbody>
+</table></li>
+</ul>
+<br>
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>
+Session information
+</button>
+</p>
+<div id="workflowr-sessioninfo" class="collapse">
+<pre class="r"><code>sessionInfo()</code></pre>
+<pre><code>R version 4.2.1 (2022-06-23)
+Platform: aarch64-apple-darwin20 (64-bit)
+Running under: macOS Monterey 12.3.1
+
+Matrix products: default
+BLAS:   /Library/Frameworks/R.framework/Versions/4.2-arm64/Resources/lib/libRblas.0.dylib
+LAPACK: /Library/Frameworks/R.framework/Versions/4.2-arm64/Resources/lib/libRlapack.dylib
+
+locale:
+[1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+ [1] kableExtra_1.3.4 ggpubr_0.4.0     xts_0.12.2       zoo_1.8-11      
+ [5] dygraphs_1.1.1.6 here_1.0.1       forcats_0.5.2    stringr_1.4.1   
+ [9] dplyr_1.1.1      purrr_0.3.5      readr_2.1.3      tidyr_1.2.1     
+[13] tibble_3.2.1     ggplot2_3.4.0    tidyverse_1.3.2  workflowr_1.7.0 
+
+loaded via a namespace (and not attached):
+ [1] fs_1.6.1            bit64_4.0.5         lubridate_1.8.0    
+ [4] webshot_0.5.4       httr_1.4.4          rprojroot_2.0.3    
+ [7] tools_4.2.1         backports_1.4.1     bslib_0.4.2        
+[10] utf8_1.2.2          R6_2.5.1            DBI_1.1.3          
+[13] colorspace_2.0-3    withr_2.5.0         tidyselect_1.2.0   
+[16] processx_3.7.0      bit_4.0.4           compiler_4.2.1     
+[19] git2r_0.30.1        textshaping_0.3.6   cli_3.6.0          
+[22] rvest_1.0.3         xml2_1.3.3          labeling_0.4.2     
+[25] sass_0.4.5          scales_1.2.1        callr_3.7.3        
+[28] systemfonts_1.0.4   digest_0.6.31       rmarkdown_2.18     
+[31] svglite_2.1.0       pkgconfig_2.0.3     htmltools_0.5.4    
+[34] highr_0.9           dbplyr_2.2.1        fastmap_1.1.0      
+[37] htmlwidgets_1.6.2   rlang_1.1.0         readxl_1.4.2       
+[40] rstudioapi_0.14     farver_2.1.1        jquerylib_0.1.4    
+[43] generics_0.1.3      jsonlite_1.8.4      vroom_1.6.0        
+[46] car_3.1-0           googlesheets4_1.0.1 magrittr_2.0.3     
+[49] Rcpp_1.0.9          munsell_0.5.0       fansi_1.0.3        
+[52] abind_1.4-5         lifecycle_1.0.3     stringi_1.7.8      
+[55] whisker_0.4         yaml_2.3.7          carData_3.0-5      
+[58] grid_4.2.1          parallel_4.2.1      promises_1.2.0.1   
+[61] crayon_1.5.2        lattice_0.20-45     haven_2.5.1        
+[64] hms_1.1.2           knitr_1.41          ps_1.7.1           
+[67] pillar_1.8.1        ggsignif_0.6.3      reprex_2.0.2       
+[70] glue_1.6.2          evaluate_0.18       getPass_0.2-2      
+[73] modelr_0.1.9        vctrs_0.6.1         tzdb_0.3.0         
+[76] httpuv_1.6.8        cellranger_1.1.0    gtable_0.3.1       
+[79] assertthat_0.2.1    cachem_1.0.6        xfun_0.35          
+[82] broom_1.0.1         rstatix_0.7.0       later_1.3.0        
+[85] ragg_1.2.3          googledrive_2.0.0   viridisLite_0.4.1  
+[88] gargle_1.2.1        ellipsis_0.3.2     </code></pre>
+</div>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+https://docs.mathjax.org/en/latest/web/configuration.html. This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
