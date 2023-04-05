@@ -11,6 +11,7 @@ editor_options:
 
 ```{r, message=FALSE, warning=FALSE}
 library(tidyverse)
+library(purrr)
 library(raster)
 library(kableExtra)
 library(ggpubr)
@@ -19,29 +20,17 @@ library(plotrix)
 ```
 
 ```{r}
-dnbr <- raster::raster("data/ltr/dnbr.tif")
-# raster::plot(dnbr)
+f <- list.files("data/dnbr", pattern = "*.tif", full.names = TRUE)
 
-# Convert to df and remove NA 
-raw <- as.data.frame(dnbr, xy= TRUE) |> 
-  filter(!is.na(dnbr))
-```
-
-#### Explore fire severity
-- Severity by pixels 
-
-```{r}
-d <- raw |> 
-  mutate(severity = 
-           cut(dnbr, 
-               breaks = c(-Inf, -251, -101, 99, 
-                               269, 439, 659, Inf),
-               labels = c(
-                 "Regrowth High", "Regrowth Low", "Unburned", 
-                 "Low Severity", "Moderate Low Severity", 
-                 "Moderate High Severity", "High Severity")
-               )) |> 
-  mutate(severity_effis = 
+prepRast <- function(x) {
+  name_layer <- gsub(".tif", replacement = "", basename(x))
+  r <- raster::raster(x)
+  df <- as.data.frame(r, xy= TRUE) 
+  names(df)[3] <- "dnbr"
+  df <- df |> 
+    filter(!is.na(dnbr)) |> 
+    mutate(yd = gsub("dnbr_", replacement = "", name_layer)) |> 
+    mutate(severity_effis = 
            cut(dnbr, 
                breaks = c(-Inf, 100, 255, 410, 
                               660, Inf),
@@ -49,17 +38,54 @@ d <- raw |>
                  "Unburned/Very Low", "Low", "Moderate", 
                  "High", "Very High")
                ))
+  
+  return(df)
+}
 
-dnbr_summary <- d |> group_by(severity_effis) |> 
-  tally() %>% 
-  mutate(freq = round(prop.table(n)*100,2)) |> 
-  mutate(area = n * 0.09)
-
-dnbr_summary |> 
-  kableExtra::kbl() |> 
-  kable_styling()  
+dnbr_all <- f |> purrr::map_dfr(prepRast) 
 
 ```
+
+
+#### Explore fire severity
+- Severity by pixels 
+
+```{r}
+
+dnbr_summary <- dnbr_all |> 
+  dplyr::select(-x, -y) |> 
+  group_by(yd, severity_effis) |> 
+  tally() |>
+  mutate(freq = round(prop.table(n)*100,2)) |> 
+  mutate(area = n*0.09)
+
+
+
+dnbr_summary_compare <- dnbr_summary |> 
+  dplyr::select(-n, -area) |> 
+  pivot_wider(names_from = yd, 
+              values_from = freq)
+
+dnbr_summary_compare_area <- dnbr_summary |> 
+  dplyr::select(-n, -freq) |> 
+  pivot_wider(names_from = yd, 
+              values_from = area)
+```
+
+
+```{r}
+dnbr_summary_compare |> 
+  kableExtra::kbl() |> 
+  kable_styling()  
+```
+
+```{r}
+dnbr_summary_compare_area |> 
+  kableExtra::kbl() |> 
+  kable_styling()  
+```
+
+
 
 #### Severity of the sampled plot
 
@@ -69,15 +95,7 @@ Do the burned sample points (i.e. "LJQ.") have the same burn severity?
 
 ```{r, message=FALSE, warning=FALSE}
 dnbr_vecinos <- read_delim("data/ltr/dnbr_vecinos.csv", delim=";") |> 
-  mutate(severity = 
-           cut(dnbr, 
-               breaks = c(-Inf, -251, -101, 99, 
-                               269, 439, 659, Inf),
-               labels = c(
-                 "Regrowth High", "Regrowth Low", "Unburned", 
-                 "Low Severity", "Moderate Low Severity", 
-                 "Moderate High Severity", "High Severity")
-               )) |> 
+  dplyr::rename(dnbr = dnbr_yd152) |> 
   mutate(severity_effis = 
            cut(dnbr, 
                breaks = c(-Inf, 100, 255, 410, 
@@ -122,7 +140,7 @@ compare_means(dnbr ~ plot, dnbr_vecinos,
 
 ```{r}
 dnbr_vecinos |> 
-  dplyr::select(-type, -severity, -severity_effis) |> 
+  dplyr::select(-type, -severity_effis) |> 
   tbl_summary(
     by = plot,
     statistic = list(
@@ -135,7 +153,7 @@ dnbr_vecinos |>
 - This map was created using QGIS 
 
 ```{r, echo=FALSE}
-knitr::include_graphics("assets/mapa_localizacion.jpg", error = FALSE)
+knitr::include_graphics("assets/mapa_severidad_152.jpg", error = FALSE)
 ```
 
 ```{r, eval=FALSE, echo=FALSE}
