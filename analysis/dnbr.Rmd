@@ -1,7 +1,5 @@
 ---
-title: "dnbr"
-author: "ajpelu"
-date: "2023-04-04"
+title: "Burn Severity"
 output: workflowr::wflow_html
 editor_options:
   chunk_output_type: console
@@ -9,62 +7,145 @@ editor_options:
 
 ## dNBR
 
-```{r}
+- To compute de dNBR we used Landsat ... 
+
+```{r, message=FALSE, warning=FALSE}
 library(tidyverse)
 library(raster)
+library(kableExtra)
+library(ggpubr)
+library(gtsummary)
+library(plotrix)
 ```
 
 ```{r}
 dnbr <- raster::raster("data/ltr/dnbr.tif")
-raster::plot(dnbr)
+# raster::plot(dnbr)
 
 # Convert to df and remove NA 
 raw <- as.data.frame(dnbr, xy= TRUE) |> 
   filter(!is.na(dnbr))
 ```
 
+#### Explore fire severity
+- Severity by pixels 
 
 ```{r}
 d <- raw |> 
   mutate(severity = 
            cut(dnbr, 
-               breaks = c(-Inf, -.251, -.101, .099, 
-                               .269, .439, .659, Inf),
+               breaks = c(-Inf, -251, -101, 99, 
+                               269, 439, 659, Inf),
                labels = c(
                  "Regrowth High", "Regrowth Low", "Unburned", 
                  "Low Severity", "Moderate Low Severity", 
                  "Moderate High Severity", "High Severity")
+               )) |> 
+  mutate(severity_effis = 
+           cut(dnbr, 
+               breaks = c(-Inf, 100, 255, 410, 
+                              660, Inf),
+               labels = c(
+                 "Unburned/Very Low", "Low", "Moderate", 
+                 "High", "Very High")
                ))
 
+dnbr_summary <- d |> group_by(severity_effis) |> 
+  tally() %>% 
+  mutate(freq = round(prop.table(n)*100,2)) |> 
+  mutate(area = n * 0.09)
+
+dnbr_summary |> 
+  kableExtra::kbl() |> 
+  kable_styling()  
+
+```
+
+#### Severity of the sampled plot
+
+Do the burned sample points (i.e. "LJQ.") have the same burn severity?
+
+- For each sampling point, dNBR values were extracted, both for the exact pixel of the sampling point and for the 8 neighboring pixels. 
+
+```{r, message=FALSE, warning=FALSE}
+dnbr_vecinos <- read_delim("data/ltr/dnbr_vecinos.csv", delim=";") |> 
+  mutate(severity = 
+           cut(dnbr, 
+               breaks = c(-Inf, -251, -101, 99, 
+                               269, 439, 659, Inf),
+               labels = c(
+                 "Regrowth High", "Regrowth Low", "Unburned", 
+                 "Low Severity", "Moderate Low Severity", 
+                 "Moderate High Severity", "High Severity")
+               )) |> 
+  mutate(severity_effis = 
+           cut(dnbr, 
+               breaks = c(-Inf, 100, 255, 410, 
+                              660, Inf),
+               labels = c(
+                 "Unburned/Very Low", "Low", "Moderate", 
+                 "High", "Very High")
+               ))
+
+```
+
+- We compared using non-parametric Kruskal-Wallis
+
+```{r, echo=FALSE}
+my_comparisons <- 
+  list(c("LJQ1", "LJQ2"), 
+       c("LJQ1", "LJQ3"),
+       c("LJQ2", "LJQ3"))
+
+```
+
+```{r}
+ggpubr::ggboxplot(dnbr_vecinos, 
+          x = "plot", 
+          y = "dnbr", 
+          add = "jitter", 
+          xlab = "", 
+          ylab = "dNBR") +
+  ggpubr::stat_compare_means(comparisons = my_comparisons) +
+  stat_compare_means(label.y = 100) 
+```
 
 
-reclass_df <- 
-  c(-Inf, -.251, -2,
-    -.251, -.101, -1,  
-    -.101, .099, 0,  
-    .099, .269, 1,  
-    .269, .439, 2, 
-    .439, .659, 3,  
-    .659, Inf, 4)
-
-reclass_df <- 
-  c(-Inf, -.251, -2, "Regrowth High", 
-    -.251, -.101, -1, "Regrowth Low",
-    -.101, .099, 0, "Unburned",
-    .099, .269, 1, "Low Severity",
-    .269, .439, 2, "Moderate Low Severity",
-    .439, .659, 3, "Moderate High Severity",
-    .659, Inf, 4, "High Severity")
+```{r}
+compare_means(dnbr ~ plot, dnbr_vecinos, 
+              method = "wilcox.test", 
+              p.adjust.method = "bonferroni") |> 
+  kableExtra::kbl() %>% 
+  kable_styling()
+```
 
 
+```{r}
+dnbr_vecinos |> 
+  dplyr::select(-type, -severity, -severity_effis) |> 
+  tbl_summary(
+    by = plot,
+    statistic = list(
+      all_continuous() ~ "{mean} ± {std.error} ({sd})"
+    ))
+```
 
 
+#### Map 
+- This map was created using QGIS 
+
+```{r, echo=FALSE}
+knitr::include_graphics("assets/mapa_localizacion.jpg", error = FALSE)
+```
+
+```{r, eval=FALSE, echo=FALSE}
+# https://effis.jrc.ec.europa.eu/about-effis/technical-background/rapid-damage-assessment
 effis_df <- 
-  c(-Inf, 0.1, 0, 
-    0.1, 0.255, 1, 
-    0.255, 0.41, 2,
-    0.41, 0.66, 3, 
-    0.66, Inf, 4)
+  c(-Inf, 100, 0, 
+    100, 255, 1, 
+    255, 410, 2,
+    410, 660, 3, 
+    660, Inf, 4)
     
 # 0 = "Unburned/Very Low"
 # 1 = "Low"
@@ -72,34 +153,41 @@ effis_df <-
 # 3 = "High"
 # 4 = "Very High"
 
-# https://effis.jrc.ec.europa.eu/about-effis/technical-background/rapid-damage-assessment 
-reclass_m <- matrix(effis_df, 
+
+reclass_df <- 
+  c(-Inf, -251, -2,
+    -251, -101, -1,  
+    -101, 99, 0,  
+    99, 269, 1,  
+    269, 439, 2, 
+    439, 659, 3,  
+    659, Inf, 4)
+
+# -2, "Regrowth High", 
+# -1, "Regrowth Low",
+# 0, "Unburned",
+# 1, "Low Severity",
+# 2, "Moderate Low Severity",
+# 3, "Moderate High Severity",
+# 4, "High Severity"
+
+
+## See  https://www.scielo.org.mx/pdf/rca/n98/2663-3981-rca-98-145.pdf 
+# https://www.sciencedirect.com/science/article/pii/S0303243420308862 
+# https://polipapers.upv.es/index.php/raet/article/view/13082/13393 
+# https://www.juntadeandalucia.es/medioambiente/portal_web/rediam/productos/Publicaciones/congresos/2017_XVIICongresoAET/2017_AET_Cartografia_IncendioQuesada.pdf 
+# https://8cfe.congresoforestal.es/sites/default/files/actas/8CFE-1064.pdf 
+# https://www.juntadeandalucia.es/medioambiente/portal/documents/20142/0/2022_10_26_TOPCART_SierraBermeja_ver5_corregida.pdf/f8092d1b-9a08-453e-4dce-c4056f8d54c8?t=1668590187164 
+
+
+reclass_m <- matrix(reclass_df, 
                     ncol = 3, byrow = TRUE) 
 
 dnbr_reclas <- raster::reclassify(dnbr, reclass_m)
 plot(dnbr_reclas)
-
-##### ESTE https://www.scielo.org.mx/pdf/rca/n98/2663-3981-rca-98-145.pdf 
-
-# https://www.sciencedirect.com/science/article/pii/S0303243420308862 
-dpct <- d |> 
-  group_by(severity) |> 
-  summarise(n = length(dnbr)) 
-
-%>% 
-  as.data.frame()
-data_new2 
 
 ```
 
 
 
 
-https://polipapers.upv.es/index.php/raet/article/view/13082/13393 
-
-https://www.juntadeandalucia.es/medioambiente/portal_web/rediam/productos/Publicaciones/congresos/2017_XVIICongresoAET/2017_AET_Cartografia_IncendioQuesada.pdf 
-
-
-https://8cfe.congresoforestal.es/sites/default/files/actas/8CFE-1064.pdf 
-
-https://www.juntadeandalucia.es/medioambiente/portal/documents/20142/0/2022_10_26_TOPCART_SierraBermeja_ver5_corregida.pdf/f8092d1b-9a08-453e-4dce-c4056f8d54c8?t=1668590187164 
