@@ -17,3 +17,4 @@ editor_options:
 - [Data from PSN07 (since 2008)](climate_data.html)
 
 # Burn severity 
+- [Compute burn severity using $\Delta \text{NBR}$](dnbr.html)
