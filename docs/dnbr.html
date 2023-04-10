@@ -380,7 +380,7 @@ class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2023-04-05
+<strong>Last updated:</strong> 2023-04-10
 </p>
 <p>
 <strong>Checks:</strong> <span
@@ -511,15 +511,15 @@ project makes it easier to run your code on other machines.</p>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomajpelumslanjaronmicrotree055277eca6380776afe6f79eaa80e229aae1e652targetblank055277ea">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomajpelumslanjaronmicrotree586861ec056732c0073e4bf2b11dd233976e8639targetblank586861ea">
 <span class="glyphicon glyphicon-ok text-success"
 aria-hidden="true"></span> <strong>Repository version:</strong>
-<a href="https://github.com/ajpelu/ms_lanjaron_micro/tree/055277eca6380776afe6f79eaa80e229aae1e652" target="_blank">055277e</a>
+<a href="https://github.com/ajpelu/ms_lanjaron_micro/tree/586861ec056732c0073e4bf2b11dd233976e8639" target="_blank">586861e</a>
 </a>
 </p>
 </div>
 <div
-id="strongRepositoryversionstrongahrefhttpsgithubcomajpelumslanjaronmicrotree055277eca6380776afe6f79eaa80e229aae1e652targetblank055277ea"
+id="strongRepositoryversionstrongahrefhttpsgithubcomajpelumslanjaronmicrotree586861ec056732c0073e4bf2b11dd233976e8639targetblank586861ea"
 class="panel-collapse collapse">
 <div class="panel-body">
 <p>
@@ -529,7 +529,7 @@ reproducibility.
 </p>
 <p>
 The results in this page were generated with repository version
-<a href="https://github.com/ajpelu/ms_lanjaron_micro/tree/055277eca6380776afe6f79eaa80e229aae1e652" target="_blank">055277e</a>.
+<a href="https://github.com/ajpelu/ms_lanjaron_micro/tree/586861ec056732c0073e4bf2b11dd233976e8639" target="_blank">586861e</a>.
 See the <em>Past versions</em> tab to see a history of the changes made
 to the R Markdown and HTML files.
 </p>
@@ -546,26 +546,13 @@ were generated:
 Ignored files:
     Ignored:    .Rhistory
     Ignored:    .Rproj.user/
+    Ignored:    data/.DS_Store
+    Ignored:    data/dnbr/.DS_Store
+    Ignored:    data/geo/.DS_Store
+    Ignored:    data/ltr/.DS_Store
 
-Untracked files:
-    Untracked:  .Rprofile
-    Untracked:  .gitattributes
-    Untracked:  .gitignore
-    Untracked:  README.md
-    Untracked:  _workflowr.yml
-    Untracked:  analysis/_site.yml
-    Untracked:  analysis/about.Rmd
-    Untracked:  analysis/climate_data.Rmd
-    Untracked:  analysis/img/
-    Untracked:  analysis/index.Rmd
-    Untracked:  analysis/landsat_ltr.Rmd
-    Untracked:  analysis/license.Rmd
-    Untracked:  analysis/mapa_location.qgz
-    Untracked:  analysis/modis_ndvi.Rmd
-    Untracked:  code/
-    Untracked:  data/
-    Untracked:  ms_lanjaron_micro.Rproj
-    Untracked:  output/
+Unstaged changes:
+    Modified:   analysis/index.Rmd
 
 </code></pre>
 <p>
@@ -610,6 +597,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/ajpelu/ms_lanjaron_micro/blob/586861ec056732c0073e4bf2b11dd233976e8639/analysis/dnbr.Rmd" target="_blank">586861e</a>
+</td>
+<td>
+ajpelu
+</td>
+<td>
+2023-04-10
+</td>
+<td>
+add captions
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/ajpelu/ms_lanjaron_micro/8329bee8c66137299d36edbe429e532d064e693e/docs/dnbr.html" target="_blank">8329bee</a>
+</td>
+<td>
+ajpelu
+</td>
+<td>
+2023-04-05
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -744,9 +765,14 @@ dnbr_summary_compare_area &lt;- dnbr_summary |&gt;
   pivot_wider(names_from = yd, 
               values_from = area)</code></pre>
 <pre class="r"><code>dnbr_summary_compare |&gt; 
-  kableExtra::kbl() |&gt; 
+  kableExtra::kbl(caption = &quot;Percentage of severity categories using different season to compute the dNBR. yd_60_305: 01/03/2005; yd_152_305: 01/06/2005; yd_244_305: 01/09/2005&quot;) |&gt; 
   kable_styling()  </code></pre>
 <table class="table" style="margin-left: auto; margin-right: auto;">
+<caption>
+Percentage of severity categories using different season to compute the
+dNBR. yd_60_305: 01/03/2005; yd_152_305: 01/06/2005; yd_244_305:
+01/09/2005
+</caption>
 <thead>
 <tr>
 <th style="text-align:left;">
@@ -837,9 +863,13 @@ Very High
 </tbody>
 </table>
 <pre class="r"><code>dnbr_summary_compare_area |&gt; 
-  kableExtra::kbl() |&gt; 
+  kableExtra::kbl(caption = &quot;Percentage of severity categories using different season to compute the dNBR. (Same of table anterior, but using area (ha))&quot;) |&gt; 
   kable_styling()  </code></pre>
 <table class="table" style="margin-left: auto; margin-right: auto;">
+<caption>
+Percentage of severity categories using different season to compute the
+dNBR. (Same of table anterior, but using area (ha))
+</caption>
 <thead>
 <tr>
 <th style="text-align:left;">
@@ -935,8 +965,9 @@ Very High
 <p>Do the burned sample points (i.e. “LJQ.”) have the same burn
 severity?</p>
 <ul>
-<li>For each sampling point, dNBR values were extracted, both for the
-exact pixel of the sampling point and for the 8 neighboring pixels.</li>
+<li>For each sampling point, dNBR values were extracted (We selected
+yd152), both for the exact pixel of the sampling point and for the 8
+neighboring pixels.</li>
 </ul>
 <pre class="r"><code>dnbr_vecinos &lt;- read_delim(&quot;data/ltr/dnbr_vecinos.csv&quot;, delim=&quot;;&quot;) |&gt; 
   dplyr::rename(dnbr = dnbr_yd152) |&gt; 
@@ -962,6 +993,43 @@ exact pixel of the sampling point and for the 8 neighboring pixels.</li>
 <pre><code>Warning in wilcox.test.default(c(446, 309, 401, 404, 544, 497, 408, 415, :
 cannot compute exact p-value with ties</code></pre>
 <p><img src="figure/dnbr.Rmd/unnamed-chunk-8-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-8-1">
+Past versions of unnamed-chunk-8-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-8-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/ajpelu/ms_lanjaron_micro/blob/8329bee8c66137299d36edbe429e532d064e693e/docs/figure/dnbr.Rmd/unnamed-chunk-8-1.png" target="_blank">8329bee</a>
+</td>
+<td>
+ajpelu
+</td>
+<td>
+2023-04-05
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>compare_means(dnbr ~ plot, dnbr_vecinos, 
               method = &quot;wilcox.test&quot;, 
               p.adjust.method = &quot;bonferroni&quot;) |&gt; 
@@ -1078,7 +1146,7 @@ Wilcoxon
 </tbody>
 </table>
 <pre class="r"><code>dnbr_vecinos |&gt; 
-  dplyr::select(-type, -severity_effis) |&gt; 
+  dplyr::select(-type, -severity_effis, -dnbr_yd60) |&gt; 
   tbl_summary(
     by = plot,
     statistic = list(
@@ -1535,10 +1603,6 @@ Wilcoxon
     </tr>
   </thead>
   <tbody class="gt_table_body">
-    <tr><td headers="label" class="gt_row gt_left">dnbr_yd60</td>
-<td headers="stat_1" class="gt_row gt_center">392 ± 29 (87)</td>
-<td headers="stat_2" class="gt_row gt_center">408 ± 26 (77)</td>
-<td headers="stat_3" class="gt_row gt_center">168 ± 26 (79)</td></tr>
     <tr><td headers="label" class="gt_row gt_left">dnbr</td>
 <td headers="stat_1" class="gt_row gt_center">413 ± 27 (80)</td>
 <td headers="stat_2" class="gt_row gt_center">410 ± 26 (78)</td>
@@ -1559,6 +1623,43 @@ Wilcoxon
 <li>This map was created using QGIS</li>
 </ul>
 <p><img src="assets/mapa_severidad_152.jpg" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-mapa_severidad_152">
+Past versions of mapa_severidad_152.jpg
+</button>
+</p>
+<div id="fig-mapa_severidad_152" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/ajpelu/ms_lanjaron_micro/blob/01e283106134a7061ddeaf41e7d94d49b4873c0b/docs/assets/mapa_severidad_152.jpg" target="_blank">01e2831</a>
+</td>
+<td>
+ajpelu
+</td>
+<td>
+2023-04-05
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <br>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
