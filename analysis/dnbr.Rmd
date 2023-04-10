@@ -75,13 +75,13 @@ dnbr_summary_compare_area <- dnbr_summary |>
 
 ```{r}
 dnbr_summary_compare |> 
-  kableExtra::kbl() |> 
+  kableExtra::kbl(caption = "Percentage of severity categories using different season to compute the dNBR. yd_60_305: 01/03/2005; yd_152_305: 01/06/2005; yd_244_305: 01/09/2005") |> 
   kable_styling()  
 ```
 
 ```{r}
 dnbr_summary_compare_area |> 
-  kableExtra::kbl() |> 
+  kableExtra::kbl(caption = "Percentage of severity categories using different season to compute the dNBR. (Same of table anterior, but using area (ha))") |> 
   kable_styling()  
 ```
 
@@ -91,7 +91,7 @@ dnbr_summary_compare_area |>
 
 Do the burned sample points (i.e. "LJQ.") have the same burn severity?
 
-- For each sampling point, dNBR values were extracted, both for the exact pixel of the sampling point and for the 8 neighboring pixels. 
+- For each sampling point, dNBR values were extracted (We selected yd152), both for the exact pixel of the sampling point and for the 8 neighboring pixels. 
 
 ```{r, message=FALSE, warning=FALSE}
 dnbr_vecinos <- read_delim("data/ltr/dnbr_vecinos.csv", delim=";") |> 
@@ -140,7 +140,7 @@ compare_means(dnbr ~ plot, dnbr_vecinos,
 
 ```{r}
 dnbr_vecinos |> 
-  dplyr::select(-type, -severity_effis) |> 
+  dplyr::select(-type, -severity_effis, -dnbr_yd60) |> 
   tbl_summary(
     by = plot,
     statistic = list(
