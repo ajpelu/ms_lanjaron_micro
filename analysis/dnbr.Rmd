@@ -207,5 +207,13 @@ plot(dnbr_reclas)
 ```
 
 
+```{r}
+dnbr_vecinos |> 
+  dplyr::select(-dnbr_yd60) |> 
+  kableExtra::kbl() %>% 
+  kable_styling()
+```
+
+
 
 
