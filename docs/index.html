@@ -281,7 +281,7 @@ $(document).ready(function () {
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
 <span class="glyphicon glyphicon-list" aria-hidden="true"></span>
-workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger"
+workflowr <span class="glyphicon glyphicon-ok text-success"
 aria-hidden="true"></span>
 </button>
 </p>
@@ -292,8 +292,8 @@ aria-hidden="true"></span>
 </li>
 <li>
 <a data-toggle="tab" href="#checks"> Checks <span
-class="glyphicon glyphicon-exclamation-sign text-danger"
-aria-hidden="true"></span> </a>
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+</a>
 </li>
 <li>
 <a data-toggle="tab" href="#versions">Past versions</a>
@@ -302,13 +302,13 @@ aria-hidden="true"></span> </a>
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2023-04-05
+<strong>Last updated:</strong> 2023-04-10
 </p>
 <p>
 <strong>Checks:</strong> <span
-class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 1
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 2
 <span class="glyphicon glyphicon-exclamation-sign text-danger"
-aria-hidden="true"></span> 1
+aria-hidden="true"></span> 0
 </p>
 <p>
 <strong>Knit directory:</strong> <code>ms_lanjaron_micro/</code> <span
@@ -331,36 +331,33 @@ versions</em> tab lists the development history.
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguncommittedchanges">
-<span class="glyphicon glyphicon-exclamation-sign text-danger"
-aria-hidden="true"></span> <strong>R Markdown file:</strong> uncommitted
-changes </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date
+</a>
 </p>
 </div>
-<div id="strongRMarkdownfilestronguncommittedchanges"
+<div id="strongRMarkdownfilestronguptodate"
 class="panel-collapse collapse">
 <div class="panel-body">
-<p>The R Markdown is untracked by Git. To know which version of the R
-Markdown file created these results, you’ll want to first commit it to
-the Git repo. If you’re still working on the analysis, you can ignore
-this warning. When you’re finished, you can run
-<code>wflow_publish</code> to commit the R Markdown file and build the
-HTML.</p>
+<p>Great! Since the R Markdown file has been committed to the Git
+repository, you know the exact version of the code that produced these
+results.</p>
 </div>
 </div>
 </div>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomajpelumslanjaronmicrotree7e3c0b2fd164124faa40f85d482d814b6be6b291targetblank7e3c0b2a">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomajpelumslanjaronmicrotree180c3a4e3305f89b7c31af8557f944d0feca8327targetblank180c3a4a">
 <span class="glyphicon glyphicon-ok text-success"
 aria-hidden="true"></span> <strong>Repository version:</strong>
-<a href="https://github.com/ajpelu/ms_lanjaron_micro/tree/7e3c0b2fd164124faa40f85d482d814b6be6b291" target="_blank">7e3c0b2</a>
+<a href="https://github.com/ajpelu/ms_lanjaron_micro/tree/180c3a4e3305f89b7c31af8557f944d0feca8327" target="_blank">180c3a4</a>
 </a>
 </p>
 </div>
 <div
-id="strongRepositoryversionstrongahrefhttpsgithubcomajpelumslanjaronmicrotree7e3c0b2fd164124faa40f85d482d814b6be6b291targetblank7e3c0b2a"
+id="strongRepositoryversionstrongahrefhttpsgithubcomajpelumslanjaronmicrotree180c3a4e3305f89b7c31af8557f944d0feca8327targetblank180c3a4a"
 class="panel-collapse collapse">
 <div class="panel-body">
 <p>
@@ -370,7 +367,7 @@ reproducibility.
 </p>
 <p>
 The results in this page were generated with repository version
-<a href="https://github.com/ajpelu/ms_lanjaron_micro/tree/7e3c0b2fd164124faa40f85d482d814b6be6b291" target="_blank">7e3c0b2</a>.
+<a href="https://github.com/ajpelu/ms_lanjaron_micro/tree/180c3a4e3305f89b7c31af8557f944d0feca8327" target="_blank">180c3a4</a>.
 See the <em>Past versions</em> tab to see a history of the changes made
 to the R Markdown and HTML files.
 </p>
@@ -387,26 +384,10 @@ were generated:
 Ignored files:
     Ignored:    .Rhistory
     Ignored:    .Rproj.user/
-
-Untracked files:
-    Untracked:  .Rprofile
-    Untracked:  .gitattributes
-    Untracked:  .gitignore
-    Untracked:  README.md
-    Untracked:  _workflowr.yml
-    Untracked:  analysis/_site.yml
-    Untracked:  analysis/about.Rmd
-    Untracked:  analysis/climate_data.Rmd
-    Untracked:  analysis/img/
-    Untracked:  analysis/index.Rmd
-    Untracked:  analysis/landsat_ltr.Rmd
-    Untracked:  analysis/license.Rmd
-    Untracked:  analysis/mapa_location.qgz
-    Untracked:  analysis/modis_ndvi.Rmd
-    Untracked:  code/
-    Untracked:  data/
-    Untracked:  ms_lanjaron_micro.Rproj
-    Untracked:  output/
+    Ignored:    data/.DS_Store
+    Ignored:    data/dnbr/.DS_Store
+    Ignored:    data/geo/.DS_Store
+    Ignored:    data/ltr/.DS_Store
 
 </code></pre>
 <p>
@@ -451,6 +432,57 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/ajpelu/ms_lanjaron_micro/blob/180c3a4e3305f89b7c31af8557f944d0feca8327/analysis/index.Rmd" target="_blank">180c3a4</a>
+</td>
+<td>
+ajpelu
+</td>
+<td>
+2023-04-10
+</td>
+<td>
+add index
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/ajpelu/ms_lanjaron_micro/blob/01e283106134a7061ddeaf41e7d94d49b4873c0b/analysis/index.Rmd" target="_blank">01e2831</a>
+</td>
+<td>
+ajpelu
+</td>
+<td>
+2023-04-05
+</td>
+<td>
+update repository with new maps
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/ajpelu/ms_lanjaron_micro/03d7a24f2ca2a32399cb47d8bed04cac176be47f/docs/index.html" target="_blank">03d7a24</a>
+</td>
+<td>
+ajpelu
+</td>
+<td>
+2023-04-05
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -745,6 +777,10 @@ Start workflowr project.
 </div>
 <div id="burn-severity" class="section level1">
 <h1>Burn severity</h1>
+<ul>
+<li><a href="dnbr.html">Compute burn severity using <span
+class="math inline">\(\Delta \text{NBR}\)</span></a></li>
+</ul>
 </div>
 
 
