@@ -135,20 +135,25 @@ ndvi_plot <- d  |>
 
 
 ```{r}
+dmod <- d |> 
+  mutate(plot = str_replace_all(plot, "LJQ", "BOF")) |> 
+  mutate(plot = str_replace_all(plot, "LJN", "UOF")) 
+  
+
 colour_plot <- c("Unburned" = "#74c476",
                  "Burned" = "#543005")
 
-puntitos <- c("LJN1" = 15, "LJN2" = 16, "LJN3" = 17,
-          "LJQ1" = 22, "LJQ2" = 25, "LJQ3" = 23)
+puntitos <- c("UOF1" = 15, "UOF2" = 16, "UOF3" = 17,
+          "BOF1" = 22, "BOF2" = 25, "BOF3" = 23)
 
-cols_fill_puntitos <- c("LJN1" = "#74c476",
-          "LJN2" = "#74c476",
-          "LJN3" = "#74c476",
-          "LJQ2" = "white",
-          "LJQ1" = "white",
-          "LJQ3" = "white")
+cols_fill_puntitos <- c("UOF1" = "#74c476",
+          "UOF2" = "#74c476",
+          "UOF3" = "#74c476",
+          "BOF2" = "white",
+          "BOF1" = "white",
+          "BOF3" = "white")
 
-ndvi_plotv2 <- d  |> 
+ndvi_plotv2 <- dmod  |> 
   filter(vi == "ndvi") |> 
   ggplot(aes(x=year, y=original)) + 
   geom_vline(xintercept = c(2008, 2011, 2014), colour = "gray") + 
@@ -178,7 +183,15 @@ ggsave(ndvi_plot,
 
 ggsave(ndvi_plotv2, 
        filename= here::here("output/ndvi_landsat_v2.png"), 
-       device = "png", height = 13, width = 20, unit = "cm", dpi=300)
+       device = "png", height = 13, width = 20, unit = "cm", dpi=600)
+
+ggsave(ndvi_plotv2, 
+       filename= here::here("output/ndvi_landsat_v2.tiff"), 
+       device = "tiff", height = 13, width = 20, unit = "cm", dpi=300)
+
+ggsave(ndvi_plotv2, 
+       filename= here::here("output/ndvi_landsat_v2.jpg"), 
+       device = "jpeg", height = 13, width = 20, unit = "cm", dpi=600)
 ```
 
 
