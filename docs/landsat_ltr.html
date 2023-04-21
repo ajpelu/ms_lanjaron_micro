@@ -371,7 +371,7 @@ div.tocify {
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
 <span class="glyphicon glyphicon-list" aria-hidden="true"></span>
-workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger"
+workflowr <span class="glyphicon glyphicon-ok text-success"
 aria-hidden="true"></span>
 </button>
 </p>
@@ -382,8 +382,8 @@ aria-hidden="true"></span>
 </li>
 <li>
 <a data-toggle="tab" href="#checks"> Checks <span
-class="glyphicon glyphicon-exclamation-sign text-danger"
-aria-hidden="true"></span> </a>
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+</a>
 </li>
 <li>
 <a data-toggle="tab" href="#versions">Past versions</a>
@@ -392,13 +392,13 @@ aria-hidden="true"></span> </a>
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2023-04-05
+<strong>Last updated:</strong> 2023-04-21
 </p>
 <p>
 <strong>Checks:</strong> <span
-class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7
 <span class="glyphicon glyphicon-exclamation-sign text-danger"
-aria-hidden="true"></span> 1
+aria-hidden="true"></span> 0
 </p>
 <p>
 <strong>Knit directory:</strong> <code>ms_lanjaron_micro/</code> <span
@@ -421,21 +421,18 @@ versions</em> tab lists the development history.
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguncommittedchanges">
-<span class="glyphicon glyphicon-exclamation-sign text-danger"
-aria-hidden="true"></span> <strong>R Markdown file:</strong> uncommitted
-changes </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date
+</a>
 </p>
 </div>
-<div id="strongRMarkdownfilestronguncommittedchanges"
+<div id="strongRMarkdownfilestronguptodate"
 class="panel-collapse collapse">
 <div class="panel-body">
-<p>The R Markdown is untracked by Git. To know which version of the R
-Markdown file created these results, you’ll want to first commit it to
-the Git repo. If you’re still working on the analysis, you can ignore
-this warning. When you’re finished, you can run
-<code>wflow_publish</code> to commit the R Markdown file and build the
-HTML.</p>
+<p>Great! Since the R Markdown file has been committed to the Git
+repository, you know the exact version of the code that produced these
+results.</p>
 </div>
 </div>
 </div>
@@ -526,15 +523,15 @@ project makes it easier to run your code on other machines.</p>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomajpelumslanjaronmicrotree7e3c0b2fd164124faa40f85d482d814b6be6b291targetblank7e3c0b2a">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomajpelumslanjaronmicrotree8ba1227f91c2e89df62ac07e662745f98470f046targetblank8ba1227a">
 <span class="glyphicon glyphicon-ok text-success"
 aria-hidden="true"></span> <strong>Repository version:</strong>
-<a href="https://github.com/ajpelu/ms_lanjaron_micro/tree/7e3c0b2fd164124faa40f85d482d814b6be6b291" target="_blank">7e3c0b2</a>
+<a href="https://github.com/ajpelu/ms_lanjaron_micro/tree/8ba1227f91c2e89df62ac07e662745f98470f046" target="_blank">8ba1227</a>
 </a>
 </p>
 </div>
 <div
-id="strongRepositoryversionstrongahrefhttpsgithubcomajpelumslanjaronmicrotree7e3c0b2fd164124faa40f85d482d814b6be6b291targetblank7e3c0b2a"
+id="strongRepositoryversionstrongahrefhttpsgithubcomajpelumslanjaronmicrotree8ba1227f91c2e89df62ac07e662745f98470f046targetblank8ba1227a"
 class="panel-collapse collapse">
 <div class="panel-body">
 <p>
@@ -544,7 +541,7 @@ reproducibility.
 </p>
 <p>
 The results in this page were generated with repository version
-<a href="https://github.com/ajpelu/ms_lanjaron_micro/tree/7e3c0b2fd164124faa40f85d482d814b6be6b291" target="_blank">7e3c0b2</a>.
+<a href="https://github.com/ajpelu/ms_lanjaron_micro/tree/8ba1227f91c2e89df62ac07e662745f98470f046" target="_blank">8ba1227</a>.
 See the <em>Past versions</em> tab to see a history of the changes made
 to the R Markdown and HTML files.
 </p>
@@ -559,28 +556,18 @@ were generated:
 </p>
 <pre><code>
 Ignored files:
+    Ignored:    .DS_Store
     Ignored:    .Rhistory
     Ignored:    .Rproj.user/
+    Ignored:    data/.DS_Store
+    Ignored:    data/dnbr/.DS_Store
+    Ignored:    data/geo/.DS_Store
+    Ignored:    data/ltr/.DS_Store
+    Ignored:    output/.DS_Store
 
-Untracked files:
-    Untracked:  .Rprofile
-    Untracked:  .gitattributes
-    Untracked:  .gitignore
-    Untracked:  README.md
-    Untracked:  _workflowr.yml
-    Untracked:  analysis/_site.yml
-    Untracked:  analysis/about.Rmd
-    Untracked:  analysis/climate_data.Rmd
-    Untracked:  analysis/img/
-    Untracked:  analysis/index.Rmd
-    Untracked:  analysis/landsat_ltr.Rmd
-    Untracked:  analysis/license.Rmd
-    Untracked:  analysis/mapa_location.qgz
-    Untracked:  analysis/modis_ndvi.Rmd
-    Untracked:  code/
-    Untracked:  data/
-    Untracked:  ms_lanjaron_micro.Rproj
-    Untracked:  output/
+Unstaged changes:
+    Modified:   data/geo/lanjaron_sampled_points.dbf
+    Modified:   output/ndvi_landsat_v2.png
 
 </code></pre>
 <p>
@@ -626,6 +613,57 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/ajpelu/ms_lanjaron_micro/blob/8ba1227f91c2e89df62ac07e662745f98470f046/analysis/landsat_ltr.Rmd" target="_blank">8ba1227</a>
+</td>
+<td>
+ajpelu
+</td>
+<td>
+2023-04-21
+</td>
+<td>
+wflow_publish("analysis/landsat_ltr.Rmd")
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/ajpelu/ms_lanjaron_micro/blob/01e283106134a7061ddeaf41e7d94d49b4873c0b/analysis/landsat_ltr.Rmd" target="_blank">01e2831</a>
+</td>
+<td>
+ajpelu
+</td>
+<td>
+2023-04-05
+</td>
+<td>
+update repository with new maps
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/ajpelu/ms_lanjaron_micro/03d7a24f2ca2a32399cb47d8bed04cac176be47f/docs/landsat_ltr.html" target="_blank">03d7a24</a>
+</td>
+<td>
+ajpelu
+</td>
+<td>
+2023-04-05
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -924,20 +962,25 @@ ndvi_plot &lt;- d  |&gt;
     # panel.grid.major.x = element_blank(),
     strip.background = element_rect(fill=NA), 
     strip.text = element_text(face=&quot;italic&quot;))</code></pre>
-<pre class="r"><code>colour_plot &lt;- c(&quot;Unburned&quot; = &quot;#74c476&quot;,
+<pre class="r"><code>dmod &lt;- d |&gt; 
+  mutate(plot = str_replace_all(plot, &quot;LJQ&quot;, &quot;BOF&quot;)) |&gt; 
+  mutate(plot = str_replace_all(plot, &quot;LJN&quot;, &quot;UOF&quot;)) 
+  
+
+colour_plot &lt;- c(&quot;Unburned&quot; = &quot;#74c476&quot;,
                  &quot;Burned&quot; = &quot;#543005&quot;)
 
-puntitos &lt;- c(&quot;LJN1&quot; = 15, &quot;LJN2&quot; = 16, &quot;LJN3&quot; = 17,
-          &quot;LJQ1&quot; = 22, &quot;LJQ2&quot; = 25, &quot;LJQ3&quot; = 23)
+puntitos &lt;- c(&quot;UOF1&quot; = 15, &quot;UOF2&quot; = 16, &quot;UOF3&quot; = 17,
+          &quot;BOF1&quot; = 22, &quot;BOF2&quot; = 25, &quot;BOF3&quot; = 23)
 
-cols_fill_puntitos &lt;- c(&quot;LJN1&quot; = &quot;#74c476&quot;,
-          &quot;LJN2&quot; = &quot;#74c476&quot;,
-          &quot;LJN3&quot; = &quot;#74c476&quot;,
-          &quot;LJQ2&quot; = &quot;white&quot;,
-          &quot;LJQ1&quot; = &quot;white&quot;,
-          &quot;LJQ3&quot; = &quot;white&quot;)
+cols_fill_puntitos &lt;- c(&quot;UOF1&quot; = &quot;#74c476&quot;,
+          &quot;UOF2&quot; = &quot;#74c476&quot;,
+          &quot;UOF3&quot; = &quot;#74c476&quot;,
+          &quot;BOF2&quot; = &quot;white&quot;,
+          &quot;BOF1&quot; = &quot;white&quot;,
+          &quot;BOF3&quot; = &quot;white&quot;)
 
-ndvi_plotv2 &lt;- d  |&gt; 
+ndvi_plotv2 &lt;- dmod  |&gt; 
   filter(vi == &quot;ndvi&quot;) |&gt; 
   ggplot(aes(x=year, y=original)) + 
   geom_vline(xintercept = c(2008, 2011, 2014), colour = &quot;gray&quot;) + 
@@ -977,6 +1020,17 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+<a href="https://github.com/ajpelu/ms_lanjaron_micro/blob/03d7a24f2ca2a32399cb47d8bed04cac176be47f/docs/figure/landsat_ltr.Rmd/unnamed-chunk-9-1.png" target="_blank">03d7a24</a>
+</td>
+<td>
+ajpelu
+</td>
+<td>
+2023-04-05
+</td>
+</tr>
 <tr>
 <td>
 <a href="https://github.com/ajpelu/ms_lanjaron_micro/blob/7e3c0b2fd164124faa40f85d482d814b6be6b291/docs/figure/landsat_ltr.Rmd/unnamed-chunk-9-1.png" target="_blank">7e3c0b2</a>
@@ -1020,7 +1074,15 @@ ajpelu
 
 ggsave(ndvi_plotv2, 
        filename= here::here(&quot;output/ndvi_landsat_v2.png&quot;), 
-       device = &quot;png&quot;, height = 13, width = 20, unit = &quot;cm&quot;, dpi=300)</code></pre>
+       device = &quot;png&quot;, height = 13, width = 20, unit = &quot;cm&quot;, dpi=600)
+
+ggsave(ndvi_plotv2, 
+       filename= here::here(&quot;output/ndvi_landsat_v2.tiff&quot;), 
+       device = &quot;tiff&quot;, height = 13, width = 20, unit = &quot;cm&quot;, dpi=300)
+
+ggsave(ndvi_plotv2, 
+       filename= here::here(&quot;output/ndvi_landsat_v2.jpg&quot;), 
+       device = &quot;jpeg&quot;, height = 13, width = 20, unit = &quot;cm&quot;, dpi=600)</code></pre>
 <pre class="r"><code>ndvi &lt;- d |&gt; 
   mutate(y = lubridate::ymd(year, truncated = 2L)) |&gt; 
   filter(vi == &quot;ndvi&quot;) |&gt; 
@@ -1092,6 +1154,17 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+<a href="https://github.com/ajpelu/ms_lanjaron_micro/blob/03d7a24f2ca2a32399cb47d8bed04cac176be47f/docs/figure/landsat_ltr.Rmd/unnamed-chunk-12-1.png" target="_blank">03d7a24</a>
+</td>
+<td>
+ajpelu
+</td>
+<td>
+2023-04-05
+</td>
+</tr>
 <tr>
 <td>
 <a href="https://github.com/ajpelu/ms_lanjaron_micro/blob/7e3c0b2fd164124faa40f85d482d814b6be6b291/docs/figure/landsat_ltr.Rmd/unnamed-chunk-12-1.png" target="_blank">7e3c0b2</a>
@@ -1270,19 +1343,19 @@ attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
- [1] kableExtra_1.3.4 ggpubr_0.4.0     xts_0.12.2       zoo_1.8-11      
- [5] dygraphs_1.1.1.6 here_1.0.1       forcats_0.5.2    stringr_1.4.1   
- [9] dplyr_1.1.1      purrr_0.3.5      readr_2.1.3      tidyr_1.2.1     
-[13] tibble_3.2.1     ggplot2_3.4.0    tidyverse_1.3.2  workflowr_1.7.0 
+ [1] kableExtra_1.3.4 ggpubr_0.6.0     xts_0.13.0       zoo_1.8-11      
+ [5] dygraphs_1.1.1.6 here_1.0.1       forcats_0.5.2    stringr_1.5.0   
+ [9] dplyr_1.1.1      purrr_1.0.1      readr_2.1.3      tidyr_1.3.0     
+[13] tibble_3.2.1     ggplot2_3.4.2    tidyverse_1.3.2  workflowr_1.7.0 
 
 loaded via a namespace (and not attached):
- [1] fs_1.6.1            bit64_4.0.5         lubridate_1.8.0    
+ [1] fs_1.6.1            bit64_4.0.5         lubridate_1.9.2    
  [4] webshot_0.5.4       httr_1.4.4          rprojroot_2.0.3    
  [7] tools_4.2.1         backports_1.4.1     bslib_0.4.2        
-[10] utf8_1.2.2          R6_2.5.1            DBI_1.1.3          
+[10] utf8_1.2.3          R6_2.5.1            DBI_1.1.3          
 [13] colorspace_2.0-3    withr_2.5.0         tidyselect_1.2.0   
-[16] processx_3.7.0      bit_4.0.4           compiler_4.2.1     
-[19] git2r_0.30.1        textshaping_0.3.6   cli_3.6.0          
+[16] processx_3.8.0      bit_4.0.4           compiler_4.2.1     
+[19] git2r_0.30.1        textshaping_0.3.6   cli_3.6.1          
 [22] rvest_1.0.3         xml2_1.3.3          labeling_0.4.2     
 [25] sass_0.4.5          scales_1.2.1        callr_3.7.3        
 [28] systemfonts_1.0.4   digest_0.6.31       rmarkdown_2.18     
@@ -1292,20 +1365,20 @@ loaded via a namespace (and not attached):
 [40] rstudioapi_0.14     farver_2.1.1        jquerylib_0.1.4    
 [43] generics_0.1.3      jsonlite_1.8.4      vroom_1.6.0        
 [46] car_3.1-0           googlesheets4_1.0.1 magrittr_2.0.3     
-[49] Rcpp_1.0.9          munsell_0.5.0       fansi_1.0.3        
+[49] Rcpp_1.0.10         munsell_0.5.0       fansi_1.0.4        
 [52] abind_1.4-5         lifecycle_1.0.3     stringi_1.7.8      
-[55] whisker_0.4         yaml_2.3.7          carData_3.0-5      
+[55] whisker_0.4.1       yaml_2.3.7          carData_3.0-5      
 [58] grid_4.2.1          parallel_4.2.1      promises_1.2.0.1   
 [61] crayon_1.5.2        lattice_0.20-45     haven_2.5.1        
-[64] hms_1.1.2           knitr_1.41          ps_1.7.1           
-[67] pillar_1.8.1        ggsignif_0.6.3      reprex_2.0.2       
+[64] hms_1.1.2           knitr_1.41          ps_1.7.4           
+[67] pillar_1.9.0        ggsignif_0.6.3      reprex_2.0.2       
 [70] glue_1.6.2          evaluate_0.18       getPass_0.2-2      
 [73] modelr_0.1.9        vctrs_0.6.1         tzdb_0.3.0         
 [76] httpuv_1.6.8        cellranger_1.1.0    gtable_0.3.1       
 [79] assertthat_0.2.1    cachem_1.0.6        xfun_0.35          
-[82] broom_1.0.1         rstatix_0.7.0       later_1.3.0        
-[85] ragg_1.2.3          googledrive_2.0.0   viridisLite_0.4.1  
-[88] gargle_1.2.1        ellipsis_0.3.2     </code></pre>
+[82] broom_1.0.1         rstatix_0.7.2       later_1.3.0        
+[85] ragg_1.2.3          viridisLite_0.4.1   googledrive_2.0.0  
+[88] gargle_1.2.1        timechange_0.2.0    ellipsis_0.3.2     </code></pre>
 </div>
 </div>
 
